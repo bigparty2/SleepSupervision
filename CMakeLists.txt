@@ -9,3 +9,6 @@ add_executable(SleepSupervisor ${SOURCES})
 
 # Inclua diretórios de header
 target_include_directories(SleepSupervisor PUBLIC "src")
+
+# flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -Wall -Wextra")
