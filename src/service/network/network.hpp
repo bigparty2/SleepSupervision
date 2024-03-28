@@ -1,7 +1,8 @@
 #ifndef NETWORK_HPP
 #define NETWORK_HPP
 
-#include "../../common/common.hpp"
+#include <string>
+#include "../../common/types.hpp"
 
 namespace ss
 {
@@ -78,6 +79,9 @@ namespace ss
             //Retorna o endereço MAC como ponteiro
             byte* Get();
 
+            //Pega o endereco MAC da maquina local
+            static MAC GetMACAddrr(std::string& interfaceName);
+
         private:
 
             //Atribui o MAC recebido ao arrey de byte
@@ -109,6 +113,9 @@ namespace ss
             //Retorna o endereço IP como int32
             uint32_t Get();
 
+            //Pega o endereco IPV4 local 
+            static IPV4 GetIPV4(std::string interface);
+
         private:
 
             //de Int32 para ByteArr
@@ -120,7 +127,6 @@ namespace ss
             //Armazenamento do endereço (network byte order)
             uint32_t _address = 0;
         };
-
     }
 }
 
