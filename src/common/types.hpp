@@ -1,7 +1,5 @@
-#ifndef COMMON_HPP
-#define COMMON_HPP
-
-#include <string>
+#ifndef TYPES_HPP
+#define TYPES_HPP
 
 namespace ss
 {
@@ -9,4 +7,4 @@ namespace ss
     typedef unsigned char byte;
 }
 
-#endif //COMMON_HPP
+#endif //TYPES_HPP

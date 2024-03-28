@@ -1,4 +1,3 @@
-#include "common/common.hpp"
 #include "service/discovery/discovery.hpp"
 #include "service/interface/interface.hpp"
 #include "service/manager/manager.hpp"
