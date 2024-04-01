@@ -1,5 +1,5 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 
 #include <string>
 #include <mutex>
@@ -55,4 +55,4 @@ namespace ss
     }; 
 }
 
-#endif //LOG_HPP
+#endif //LOGGER_HPP

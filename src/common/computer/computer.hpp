@@ -2,8 +2,11 @@
 #define COMPUTER_HPP
 
 #include <string>
+#include <unistd.h>
 
-#include "../../service/network/network.hpp" 
+#include "../../common/logger/logger.hpp"
+#include "../../service/network/MAC/mac.hpp"
+#include "../../service/network/IPV4/ipv4.hpp"
 
 namespace ss
 {
@@ -20,14 +23,23 @@ namespace ss
             unknown = 2
         };
 
+        // Conversor do status para string
+        std::string StatusToStringEN();
+        std::string StatusToStringBR();
+        static std::string StatusToStringEN(computerStatus status);
+        static std::string StatusToStringBR(computerStatus status);
+
+        // Pegar dados do computador local
+        void GetComputerInfo();
+
         //Constructor
-        computer();
+        computer(){};
         computer(std::string name, network::MAC macAddr, network::IPV4 ipv4, computerStatus status);
 
         // Pegar o nome do computador local
         static std::string GetComputerName(); 
 
-        private:
+        // private:
 
         std::string name;
         network::MAC macAddr;
