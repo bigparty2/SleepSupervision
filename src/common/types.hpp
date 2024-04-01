@@ -11,6 +11,9 @@ namespace ss
 
     // Abstração para lista de computadores
     typedef std::vector<ss::computer> computers;
+
+    //Estrutura de definição de cordenada
+    typedef struct { unsigned short x, y; } coord; 
 }
 
 #endif //TYPES_HPP
