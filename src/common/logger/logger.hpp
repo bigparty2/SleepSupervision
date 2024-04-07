@@ -1,3 +1,5 @@
+// TODO: Adaptar classe para trabalhar com semaforos para que seja process safe
+
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 

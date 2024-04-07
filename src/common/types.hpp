@@ -2,7 +2,7 @@
 #define TYPES_HPP
 
 #include <vector>
-#include "computer/computer.hpp"
+// #include "computer/computer.hpp"
 
 namespace ss
 {
@@ -10,7 +10,7 @@ namespace ss
     typedef unsigned char byte;
 
     // Abstração para lista de computadores
-    typedef std::vector<ss::computer> computers;
+    // typedef std::vector<ss::computer> computers;
 
     //Estrutura de definição de cordenada
     typedef struct { unsigned short x, y; } coord; 

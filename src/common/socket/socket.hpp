@@ -18,7 +18,9 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "../../../common/types.hpp"
+#include "../types.hpp"
+#include "../packet/packet.hpp"
+#include "../logger/logger.hpp"
 
 namespace ss
 {
@@ -39,19 +41,24 @@ namespace ss
             //Define as configurações do socket
             void SetConfig(int optname, int optaval);
 
+            //Associação a uma porta
+            void Bind(uint16_t port);
+
             //Transmite dado configurado
             void Send(const char* data, size_t dataSize, uint16_t port, uint32_t address);
             void Send(const char* data, size_t dataSize, uint16_t port, char* address);
+            void Send(packet& packet, uint16_t port, uint32_t address);
+            void Send(packet& packet, uint16_t port, char* address);
 
             // Recebe dados
-            void receive();
-            // void receive()
+            packet receiveSocket();
 
             //operadores
             Socket& operator=(const Socket&) = delete;
 
             private:
 
+            bool bindIsSet = false;
             static const int SOCKET_ERROR = -1;
             const int protocol;
             const int descriptor;

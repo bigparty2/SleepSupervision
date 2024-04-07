@@ -39,13 +39,16 @@ namespace ss
         // Pegar o nome do computador local
         static std::string GetComputerName(); 
 
+        //TODO: Implementar metodos get/set para atributos ou localizar alternativas modernas para tal
         // private:
 
-        std::string name;
-        network::MAC macAddr;
-        network::IPV4 ipv4;
+        mutable std::string name;
+        mutable network::MAC macAddr;
+        mutable network::IPV4 ipv4;
         computerStatus status;
     };
+
+    typedef std::vector<ss::computer> computers;
 }
 
 #endif //COMPUTER_HPP

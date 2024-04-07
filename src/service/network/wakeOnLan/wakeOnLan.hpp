@@ -3,7 +3,7 @@
 
 #include <string>
 #include <stdexcept>
-#include "../socket/socket.hpp"
+#include "../../../common/socket/socket.hpp"
 #include "../../../common/types.hpp"
 #include "../../../common/string/string.hpp"
 

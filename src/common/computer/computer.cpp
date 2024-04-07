@@ -21,27 +21,9 @@ std::string computer::GetComputerName()
 
 std::string computer::StatusToStringEN(computer::computerStatus status)
 {
-    std::string toReturn;
+    std::string listNames[] = {"Awake", "Sleep", "Unknown"};
 
-    switch (status)
-    {
-    case 0:
-        toReturn = "Awake";
-        break;
-
-    case 1:
-        toReturn = "Sleep";
-        break;
-
-    case 2:
-        toReturn = "Unknown";
-        break;
-    
-    default:
-        throw "not implemented";
-    }
-
-    return toReturn;
+    return listNames[status];
 }
 
 std::string computer::StatusToStringEN()
@@ -51,27 +33,9 @@ std::string computer::StatusToStringEN()
 
 std::string computer::StatusToStringBR(computer::computerStatus status)
 {
-    std::string toReturn;
+    std::string listNames[] = {"Acordado", "Dormindo", "Desconhecido"};
 
-    switch (status)
-    {
-    case 0:
-        toReturn = "Acordado";
-        break;
-
-    case 1:
-        toReturn = "Dormindo";
-        break;
-
-    case 2:
-        toReturn = "Desconhecido";
-        break;
-    
-    default:
-        throw "not implemented";
-    }
-
-    return toReturn;
+    return listNames[status];
 }
 
 std::string computer::StatusToStringBR()

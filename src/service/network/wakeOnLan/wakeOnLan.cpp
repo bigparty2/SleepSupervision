@@ -53,11 +53,22 @@ std::string network::wakeOnLan::magicPacket::ToString(const std::string &mp)
     return oss.str();
 }
 
+/**
+ * Converts the magic packet to a string representation.
+ * 
+ * @return The string representation of the magic packet.
+ */
 std::string network::wakeOnLan::magicPacket::ToString()
 {
     return this->ToString(this->mp);
 }
 
+/**
+ * @brief Sends a Wake-on-LAN magic packet to wake up a device with the specified MAC address.
+ * 
+ * @param macAddress The MAC address of the device to wake up.
+ * @param port The port number to send the magic packet to.
+ */
 void network::wakeOnLan::Awake(const std::string &macAddress, const byte &port)
 {
     //Inicialização e construção do pacote mágico
@@ -66,7 +77,7 @@ void network::wakeOnLan::Awake(const std::string &macAddress, const byte &port)
     //Criando socket
     Socket sock(IPPROTO_UDP);
 
-    //Opções do socket
+    //Opções do socket brodcast
     sock.SetConfig(SO_BROADCAST, 1);
 
     //Enviando o pacote magico
