@@ -23,7 +23,7 @@ std::string computer::StatusToStringEN(computer::computerStatus status)
 {
     std::string listNames[] = {"Awake", "Sleep", "Unknown"};
 
-    return listNames[status];
+    return std::string(listNames[status]);
 }
 
 std::string computer::StatusToStringEN()
@@ -35,7 +35,7 @@ std::string computer::StatusToStringBR(computer::computerStatus status)
 {
     std::string listNames[] = {"Acordado", "Dormindo", "Desconhecido"};
 
-    return listNames[status];
+    return std::string(listNames[status]);
 }
 
 std::string computer::StatusToStringBR()
