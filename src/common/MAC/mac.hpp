@@ -7,8 +7,8 @@
 #include <stdexcept>
 #include <ifaddrs.h> 
 #include <netpacket/packet.h>
-#include "../../../common/types.hpp"
-#include "../../../common/logger/logger.hpp"
+#include "../types.hpp"
+#include "../logger/logger.hpp"
 
 namespace ss
 {

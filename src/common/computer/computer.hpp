@@ -4,9 +4,9 @@
 #include <string>
 #include <unistd.h>
 
-#include "../../common/logger/logger.hpp"
-#include "../../service/network/MAC/mac.hpp"
-#include "../../service/network/IPV4/ipv4.hpp"
+#include "../logger/logger.hpp"
+#include "../MAC/mac.hpp"
+#include "../IPV4/ipv4.hpp"
 
 namespace ss
 {

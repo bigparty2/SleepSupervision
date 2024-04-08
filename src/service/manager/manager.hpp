@@ -19,8 +19,8 @@
 #include <unistd.h>
 // #include "../../common/types.hpp"
 #include "../../common/computer/computer.hpp"
-#include "../network/MAC/mac.hpp"
-#include "../network/IPV4/ipv4.hpp"
+#include "../../common/MAC/mac.hpp"
+#include "../../common/IPV4/ipv4.hpp"
 
 namespace ss
 {

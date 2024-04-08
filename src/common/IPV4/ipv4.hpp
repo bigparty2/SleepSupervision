@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <ifaddrs.h> 
 #include <arpa/inet.h>
-#include "../../../common/types.hpp"
+#include "../types.hpp"
 
 namespace ss
 {

@@ -14,10 +14,10 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/poll.h>
+#include "../manager/manager.hpp"
 #include "../../common/types.hpp"
 #include "../../common/thread/thread.hpp"
-#include "../manager/manager.hpp"
-#include "../network/wakeOnLan/wakeOnLan.hpp"
+#include "../../common/wakeOnLan/wakeOnLan.hpp"
 
 namespace ss
 {

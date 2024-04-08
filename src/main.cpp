@@ -4,7 +4,7 @@
 #include "service/monitor/monitor.hpp"
 #include "common/logger/logger.hpp"
 #include "common/computer/computer.hpp"
-#include "service/network/MAC/mac.hpp"
+#include "common/MAC/mac.hpp"
 #include <sys/prctl.h>
 #include <sys/wait.h>
 #include <iostream>

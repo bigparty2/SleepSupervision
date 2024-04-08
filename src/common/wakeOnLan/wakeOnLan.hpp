@@ -3,9 +3,9 @@
 
 #include <string>
 #include <stdexcept>
-#include "../../../common/socket/socket.hpp"
-#include "../../../common/types.hpp"
-#include "../../../common/string/string.hpp"
+#include "../socket/socket.hpp"
+#include "../types.hpp"
+#include "../string/string.hpp"
 
 namespace ss
 {
