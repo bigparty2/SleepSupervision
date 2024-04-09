@@ -75,7 +75,7 @@ void discovery::DiscoverySubservice::serverRun()
     //Criacao de socket UDP
     auto socket = network::Socket(IPPROTO_UDP);
 
-    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket criado");
+    //logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket criado");
 
     //Configuracao do socket
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); //Timeout de recebimento

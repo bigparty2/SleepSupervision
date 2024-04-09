@@ -124,24 +124,6 @@ namespace ss
             static constexpr int ENDLIST = 8;   //Fim da lista
             static constexpr int SIZE    = 9;   //Quantidade de elementos
             static constexpr int REMOVE  = 10;  //Remover elemento 
-
-            // Variaveis de acesso publico para manipucao da lista de computadores
-            public:
-            
-            //Controle de adição de um novo computador
-            static constexpr char* NEW_PC  = "NEW_PC";              //adicionar novo computador
-            static constexpr char* NEW_PC_NEXT  = "NEW_PC_NEXT";    //Proxima informação
-            static constexpr char* NEW_PC_END  = "NEW_PC_END";      //Fim da transmissão
-
-            //Controle de remoção de um computador
-            static constexpr char* RM_PC  = "RM_PC";                //Remover um computador
-            static constexpr char* RM_PC_NEXT  = "RM_PC_NEXT";      //Proxima informação
-            static constexpr char* RM_PC_END  = "RM_PC_END";        //Fim da transmissão
-
-            //Controle de atualização de um computador
-            static constexpr char* UPD_PC  = "UPD_PC";              //Atualizar um computador
-            static constexpr char* UPD_PC_NEXT  = "UPD_PC_NEXT";    //Proxima informação
-            static constexpr char* UPD_PC_END  = "UPD_PC_END";      //Fim da transmissão
         };      
     }       
 }
