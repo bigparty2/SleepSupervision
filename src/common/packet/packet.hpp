@@ -29,7 +29,9 @@ namespace ss
                 REGITRY = 0,
                 EXIT = 1,
                 OK = 2,
-                ERROR = 3
+                ERROR = 3,
+                ISAWAKE = 4,
+                IMAWAKE = 5
             };
 
             packet(){};
