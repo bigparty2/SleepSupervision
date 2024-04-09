@@ -18,26 +18,8 @@ network::Socket::~Socket()
     close(this->descriptor);
 }
 
-// template<typename T>
-// void network::Socket::SetConfig(int optname, T optaval)
-// {
-//     if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
-//     {
-//         //TODO: Incluir erro na classe LOG
-//         throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ", valor: " + std::to_string(optaval) + ". Erro: " + std::string(std::strerror(errno)));       
-//     }
-// }
-
-void network::Socket::SetConfig(int optname, int optaval)
-{
-    if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
-    {
-        //TODO: Incluir erro na classe LOG
-        throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ", valor: " + std::to_string(optaval) + ". Erro: " + std::string(std::strerror(errno)));       
-    }
-}
-
-void network::Socket::SetConfig(int optname, timeval optaval)
+template<typename T>
+void network::Socket::SetConfig(int optname, T optaval)
 {
     if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
     {
@@ -45,6 +27,10 @@ void network::Socket::SetConfig(int optname, timeval optaval)
         throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ". Erro: " + std::string(std::strerror(errno)));       
     }
 }
+
+// Instancia explicita de SetConfig
+template void ss::network::Socket::SetConfig<int>(int optname, int optaval);
+template void ss::network::Socket::SetConfig<timeval>(int optname, timeval optaval);
 
 void network::Socket::Send(const char* data, size_t dataSize, uint16_t port, uint32_t address)
 {
