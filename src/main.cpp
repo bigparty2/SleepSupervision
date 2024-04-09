@@ -13,7 +13,7 @@
 int main (int argc, char** argv)
 {
     //Define o nome do processo
-    prctl(PR_SET_NAME, "SM");
+    prctl(PR_SET_NAME, "SS");
 
     //verificação da quantidade de argumentos
     if(argc != 2)
@@ -45,14 +45,28 @@ int main (int argc, char** argv)
     ss::manager::computersManager cm;
 
     // Lista testa
-    for(int i = 1; i < 50; i++)
+    // for(int i = 1; i < 50; i++)
+    // {
+    //     ss::computer temp;
+    //     temp.name = std::string("Teste com nome maior " + std::to_string(i));
+    //     temp.ipv4 = std::string("127.0.0." + std::to_string(i));
+    //     temp.macAddr = "12:34:56:78:9A:BC";
+    //     temp.status = ss::computer::computerStatus::awake;
+    //     cm.__Insert(temp);
+    // }
+
+    //inicia o subserviço de descoberta
+    auto pidDiscovery = fork();
+    if(!pidDiscovery)
     {
-        ss::computer temp;
-        temp.name = std::string("Teste com nome maior " + std::to_string(i));
-        temp.ipv4 = std::string("127.0.0." + std::to_string(i));
-        temp.macAddr = "12:34:56:78:9A:BC";
-        temp.status = ss::computer::computerStatus::awake;
-        cm.__Insert(temp);
+        //Define o nome do processo
+        prctl(PR_SET_NAME, "SS_Discovery");
+
+        ss::discovery::DiscoverySubservice ds(cm);
+
+        ds.Start(isManager);
+
+        return EXIT_SUCCESS;
     }
 
     //inicia o subserviço de interface
@@ -60,7 +74,7 @@ int main (int argc, char** argv)
     if(!pidInterface)
     {
         //Define o nome do processo
-        prctl(PR_SET_NAME, "SM_Interface");
+        prctl(PR_SET_NAME, "SS_Interface");
 
         std::cout << "Sleep Manager" << std::endl;
 
@@ -85,6 +99,9 @@ int main (int argc, char** argv)
         } 
         //waitpid(pidInterface, NULL, WUNTRACED); //trava a execução WUNTRACED
     }
+
+    kill(pidDiscovery, 9);
+    // kill(pidMonitoring, 9);
 
     return (0x0);
 }

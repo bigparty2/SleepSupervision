@@ -19,6 +19,7 @@ namespace ss
                 byte macOrigin[6];
                 int32_t ipv4Origin;
                 byte nameOrigin[64];
+                uint16_t portOrigin;
                 int64_t timestamp;
                 byte message;
             };
@@ -33,18 +34,20 @@ namespace ss
 
             packet(){};
             packet(_packet packet);
-            packet(computer computer, packetMesg message, byte seq = 1);
+            packet(computer computer, packetMesg message, uint16_t port, byte seq = 1);
             ~packet();
 
             byte* GetPacketData();
             _packet GetPacket();
             static size_t GetPacketSize();
-            void SetPacket(computer computer, packetMesg message, byte seq = 1);
+            void SetPacket(computer computer, packetMesg message, uint16_t port, byte seq = 1);
             void SetPacket(_packet packet);
+
+            bool IsDataInicialized();
 
             private:
 
-            mutable bool dataInicialized = false;
+            bool dataInicialized = false;
 
             _packet packetData;
 

@@ -56,6 +56,9 @@ namespace ss
             // Inserção direta na lista de computadores (PARA TESTES)
             void __Insert(computer computer);
 
+            //Instancia com dados deste computador
+            computer thisComputer;
+
             private:
 
             //Responde a uma chamada da função Get() para comunicação entre processos

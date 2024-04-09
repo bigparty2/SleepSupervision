@@ -18,12 +18,31 @@ network::Socket::~Socket()
     close(this->descriptor);
 }
 
+// template<typename T>
+// void network::Socket::SetConfig(int optname, T optaval)
+// {
+//     if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
+//     {
+//         //TODO: Incluir erro na classe LOG
+//         throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ", valor: " + std::to_string(optaval) + ". Erro: " + std::string(std::strerror(errno)));       
+//     }
+// }
+
 void network::Socket::SetConfig(int optname, int optaval)
 {
     if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
     {
         //TODO: Incluir erro na classe LOG
-        throw std::runtime_error("Falha ao abrir o socket. Erro: " + std::string(std::strerror(errno)));       
+        throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ", valor: " + std::to_string(optaval) + ". Erro: " + std::string(std::strerror(errno)));       
+    }
+}
+
+void network::Socket::SetConfig(int optname, timeval optaval)
+{
+    if(setsockopt(this->descriptor, SOL_SOCKET, optname, &optaval, sizeof(optaval)) == SOCKET_ERROR)
+    {
+        //TODO: Incluir erro na classe LOG
+        throw std::runtime_error("Falha ao definir uma configuração do socket. Config: " + std::to_string(optname) + ". Erro: " + std::string(std::strerror(errno)));       
     }
 }
 
@@ -38,6 +57,8 @@ void network::Socket::Send(const char* data, size_t dataSize, uint16_t port, uin
 
     if(bytesSend == SOCKET_ERROR)
     {
+        //TODO: Implementar verificao de timeout
+
         //TODO: Incluir erro na classe LOG
         throw std::runtime_error("Falha ao enviar o pacote. Erro: " + std::string(std::strerror(errno)));    
     }
@@ -64,7 +85,7 @@ void network::Socket::Send(packet& packet, uint16_t port, char* address)
 }
 
 
-void network::Socket::Bind(uint16_t port)
+void network::Socket::Bind(uint16_t &port, uint16_t range)
 {
     sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -72,10 +93,27 @@ void network::Socket::Bind(uint16_t port)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     std::memset(addr.sin_zero, 0, 8);
 
-    if (bind(this->descriptor, (struct sockaddr *)&addr, sizeof(struct sockaddr)) < 0)
+    while(bind(this->descriptor, (struct sockaddr *)&addr, sizeof(struct sockaddr)) < 0)
     {
+        if (errno == EADDRINUSE)
+        {
+            if(port < range)
+            {
+                // Porta já em uso, tente a próxima porta
+                port++;
+                addr.sin_port = htons(port);
+            }
+            else
+            {
+                //TODO: Incluir erro na classe LOG
+                throw std::runtime_error("Nenhuma porta disponível. Erro: " + std::string(std::strerror(errno)));
+            }
+        }
+        else
+        {
         //TODO: Incluir erro na classe LOG
         throw std::runtime_error("Falha ao criar bind. Erro: " + std::string(std::strerror(errno)));
+        }   
     }
 
     this->bindIsSet = true;

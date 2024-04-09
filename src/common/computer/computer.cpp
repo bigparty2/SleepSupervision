@@ -53,3 +53,28 @@ void computer::GetComputerInfo()
     logger::GetInstance().Log(__PRETTY_FUNCTION__, this->name + "|" + this->ipv4.ToString() + "|" + this->macAddr.ToString());
 }
 
+std::string computer::GetName() const
+{
+    return this->name;
+}
+
+network::MAC computer::GetMAC() const
+{
+    return this->macAddr;
+}
+
+network::IPV4 computer::GetIPV4() const
+{
+    return this->ipv4;
+}
+
+computer::computerStatus computer::GetStatus() const
+{
+    return this->status;
+}
+
+void computer::SetStatus(computer::computerStatus status)
+{
+    this->status = status;
+}
+

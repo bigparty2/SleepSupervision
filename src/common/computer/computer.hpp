@@ -39,12 +39,18 @@ namespace ss
         // Pegar o nome do computador local
         static std::string GetComputerName(); 
 
-        //TODO: Implementar metodos get/set para atributos ou localizar alternativas modernas para tal
-        // private:
+        //Gets e sets de atributos
+        std::string GetName() const;
+        network::MAC GetMAC() const;
+        network::IPV4 GetIPV4() const;
+        computerStatus GetStatus() const;
+        void SetStatus(computerStatus status);
 
-        mutable std::string name;
-        mutable network::MAC macAddr;
-        mutable network::IPV4 ipv4;
+        //private: Desabilitado para testes
+
+        std::string name;
+        network::MAC macAddr;
+        network::IPV4 ipv4;
         computerStatus status;
     };
 

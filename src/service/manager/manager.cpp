@@ -16,7 +16,10 @@ manager::computersManager::computersManager()
     //ultima atualização
     *(uint64_t*)this->saLastUpdate = 0;
 
-    //controle comunicação entre processos
+    //captura dos dados do computador local
+    this->thisComputer.GetComputerInfo();
+
+    //inicializacao do controle comunicação entre processos
     *(uint64_t*)this->saIPCControl = WAIT;
 
     //sem_close(sem);
@@ -29,6 +32,7 @@ manager::computersManager::computersManager()
     if(this->sem == SEM_FAILED)
     {
         // TODO: Incluir erro na classe LOG
+        // TODO: Adaptar erro para throw
         perror("sem_open");
         exit(EXIT_FAILURE);
     }
@@ -240,6 +244,7 @@ void manager::computersManager::InsertResponse()
     computer pcd = ReadFromSA();
 
     if(manager::computersManager::IndexOf(pcd.ipv4) != manager::computersManager::npos)
+        //TODO: Implementar retorno para indicar que já existe na lista
         return;
 
     this->_data.push_back(pcd);

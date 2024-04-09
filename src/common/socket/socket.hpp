@@ -39,10 +39,14 @@ namespace ss
             ~Socket();
 
             //Define as configurações do socket
+            // template<typename T>
+            // void SetConfig(int optname, T optaval);
             void SetConfig(int optname, int optaval);
+            void SetConfig(int optname, timeval optaval);
+
 
             //Associação a uma porta
-            void Bind(uint16_t port);
+            void Bind(uint16_t &port, uint16_t range = 0);
 
             //Transmite dado configurado
             void Send(const char* data, size_t dataSize, uint16_t port, uint32_t address);
