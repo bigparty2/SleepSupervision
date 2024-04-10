@@ -1,5 +1,5 @@
 #ifndef THREAD_HPP
-#define THREAD_CPP
+#define THREAD_HPP
 
 #include <chrono>
 #include <thread>
@@ -14,4 +14,4 @@ namespace ss
     };
 }
 
-#endif //THREAD_CPP
+#endif //THREAD_HPP
