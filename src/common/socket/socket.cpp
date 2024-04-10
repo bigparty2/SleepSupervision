@@ -105,7 +105,7 @@ void network::Socket::Bind(uint16_t &port, uint16_t range)
     this->bindIsSet = true;
 }
 
-ss::network::packet network::Socket::receiveSocket()
+ss::network::packet network::Socket::receivePacket()
 {
     if(!this->bindIsSet)
     {

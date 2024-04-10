@@ -86,7 +86,7 @@ namespace ss
              *
              * @return The received packet.
              */
-            packet receiveSocket();
+            packet receivePacket();
 
             //operator = denided
             Socket& operator=(const Socket&) = delete;
