@@ -59,7 +59,7 @@ void discovery::DiscoverySubservice::clientRun()
         socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
 
         //Recebimento de pacote de resposta
-        auto response = socket.receiveSocket();
+        auto response = socket.receivePacket();
 
         //Verifica se o pacote recebido é uma resposta
         if(response.GetPacket().message == network::packet::OK)
@@ -88,7 +88,7 @@ void discovery::DiscoverySubservice::serverRun()
     while(true)
     {
         //Recebimento de pacote
-        auto packet = socket.receiveSocket();
+        auto packet = socket.receivePacket();
 
         //Verifica se o pacote é de registro
         if(packet.IsDataInicialized())
