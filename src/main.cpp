@@ -44,17 +44,6 @@ int main (int argc, char** argv)
     //gerenciador de participantes compartilhado
     ss::manager::computersManager cm;
 
-    // Lista testa
-    // for(int i = 1; i < 50; i++)
-    // {
-    //     ss::computer temp;
-    //     temp.name = std::string("Teste com nome maior " + std::to_string(i));
-    //     temp.ipv4 = std::string("127.0.0." + std::to_string(i));
-    //     temp.macAddr = "12:34:56:78:9A:BC";
-    //     temp.status = ss::computer::computerStatus::awake;
-    //     cm.__Insert(temp);
-    // }
-
     //inicia o subserviço de descoberta
     auto pidDiscovery = fork();
     if(!pidDiscovery)
@@ -69,6 +58,19 @@ int main (int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
+    //inicia o subserviço de monitoramento
+    auto pidMonitor = fork();
+    if(!pidMonitor)
+    {
+        prctl(PR_SET_NAME, "SS_Monitor");
+
+        ss::monitor::MonitorSubservice ms(cm);
+
+        ms.Start(isManager);
+
+        return EXIT_SUCCESS;
+    }
+
     //inicia o subserviço de interface
     auto pidInterface = fork();
     if(!pidInterface)
@@ -76,7 +78,7 @@ int main (int argc, char** argv)
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Interface");
 
-        std::cout << "Sleep Manager" << std::endl;
+        std::cout << "Sleep Supervison" << std::endl;
 
         //Inicializa o serviço
         ss::interface::interfaceManager interfaceManager(cm, isManager);
@@ -95,13 +97,13 @@ int main (int argc, char** argv)
             }
         else
         {
-            waitpid(pidInterface, NULL, WUNTRACED); //trava a execução WUNTRACED
-        } 
-        //waitpid(pidInterface, NULL, WUNTRACED); //trava a execução WUNTRACED
+            //trava a execução WUNTRACED
+            waitpid(pidInterface, NULL, WUNTRACED); 
+        }
     }
 
     kill(pidDiscovery, 9);
-    // kill(pidMonitoring, 9);
+    kill(pidMonitor, 9);
 
     return (0x0);
 }
