@@ -230,7 +230,7 @@ namespace ss
             unsigned short currentRows;
 
             //Constantes de elementos textuais da interface grafica
-            const std::string title = "Sleep Manager";
+            const std::string title = "Sleep Supervison";
             const std::string tableTitle = "Computadores conectados ao sistema";
             const std::string noDataMsg = "Não há computadores identificados no sistema";
             const std::string frameTopLeft = "╔";
