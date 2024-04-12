@@ -12,6 +12,9 @@
 
 int main (int argc, char** argv)
 {
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepManager iniciado");
+
+
     //Define o nome do processo
     prctl(PR_SET_NAME, "SS");
 
@@ -30,9 +33,15 @@ int main (int argc, char** argv)
         std::string argStr(argv[1]);
 
         if(argStr == "P" or argStr == "p")
+        {
             isManager = false;
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "iniciando como participante");
+        }
         else if(argStr == "M" or argStr == "m")
+        {
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "iniciando como servidor");
             isManager = true;
+        }
         else
         {
             // TODO: Incluir no LOG
@@ -48,6 +57,9 @@ int main (int argc, char** argv)
     auto pidDiscovery = fork();
     if(!pidDiscovery)
     {
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo do Discovery");
+
+    
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Discovery");
 
@@ -62,6 +74,8 @@ int main (int argc, char** argv)
     auto pidMonitor = fork();
     if(!pidMonitor)
     {
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo do Monitor");
+
         prctl(PR_SET_NAME, "SS_Monitor");
 
         ss::monitor::MonitorSubservice ms(cm);
@@ -75,6 +89,8 @@ int main (int argc, char** argv)
     auto pidInterface = fork();
     if(!pidInterface)
     {
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo da Interface");
+
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Interface");
 
