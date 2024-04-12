@@ -6,6 +6,7 @@
 #include "../../common/packet/packet.hpp"
 #include "../../common/socket/socket.hpp"
 #include "../../common/thread/thread.hpp"
+#include "../../common/logger/logger.hpp"
 
 namespace ss
 {
