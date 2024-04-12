@@ -8,7 +8,7 @@ monitor::MonitorSubservice::MonitorSubservice(manager::computersManager& compute
 
     this->TIMEOUT = {.tv_sec = 1 };
 
-    this->UpdateComputersToMonior();
+    // this->UpdateComputersToMonior();
 }
 
 monitor::MonitorSubservice::~MonitorSubservice()
@@ -19,6 +19,7 @@ void monitor::MonitorSubservice::Start(bool isServer)
 {
     if (isServer)
     {
+        this->UpdateComputersToMonior();
         serverRun();
     }
     else
@@ -144,6 +145,8 @@ void monitor::MonitorSubservice::serverRun()
 
 void monitor::MonitorSubservice::UpdateComputersToMonior()
 {
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado atualização da lista de computadores a monitorar.");
+
     this->failedMonitors.clear();
 
     for(auto& computer : this->computersManager->Get())
