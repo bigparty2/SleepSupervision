@@ -152,6 +152,7 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
+                this->machinesManager->Remove(localComputer.macAddr);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
 
