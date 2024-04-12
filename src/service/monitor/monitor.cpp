@@ -94,8 +94,12 @@ void monitor::MonitorSubservice::serverRun()
         }
         else
         {
+            // logger::GetInstance().Log(__PRETTY_FUNCTION__, std::to_string(this->failedMonitors.size()));
+
             for(auto& computerMonitor : this->failedMonitors)
             {
+                logger::GetInstance().Log(__PRETTY_FUNCTION__, "MonitorSubservice[servidor]: Iniciada verificação do computador " + computerMonitor.Computer.GetName());
+
                 auto packet = network::packet(this->computersManager->thisComputer, network::packet::ISAWAKE, port, 0);
 
                 socket.Send(packet, MONITOR_PORT_CLIENT, computerMonitor.Computer.GetIPV4().Get());
@@ -149,12 +153,13 @@ void monitor::MonitorSubservice::UpdateComputersToMonior()
 
     this->failedMonitors.clear();
 
-    for(auto& computer : this->computersManager->Get())
+    auto computersList = this->computersManager->Get();
+
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, std::to_string(computersList.size()));
+
+    for(auto& computer : computersList)
     {
-        if(computer.GetStatus() == computer::computerStatus::sleep)
-        {
-            this->failedMonitors.push_back({computer, 0});
-        }
+        this->failedMonitors.push_back({computer, 0});  
     }
 
     this->lastUpdate = this->computersManager->LastUpdate();
