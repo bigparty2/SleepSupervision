@@ -24,7 +24,14 @@ manager::computersManager::computersManager(bool isHost)
 
     //atribuição do host caso seja host
     if(isHost)
+    {
         this->hostComputer = this->thisComputer;
+        this->isHost = true;    
+    }
+    else
+    {
+        this->isHost = false;
+    }
 
     //inicializacao do controle comunicação entre processos
     *(uint64_t*)this->saIPCControl = WAIT;
@@ -386,4 +393,40 @@ void ss::manager::computersManager::SetHost(computer computer)
     *(uint8_t*)this->saIPCControl = END;
 
     sem_post(this->sem);
+}
+
+bool ss::manager::computersManager::IsHostSeted() const
+{
+    bool isSeted;
+
+    sem_wait(this->sem);
+
+    while((*(uint8_t*)this->saIPCControl) != READY);
+
+    *(uint8_t*)this->saIPCControl = ISSETED;
+
+    while((*(uint8_t*)this->saIPCControl) == ISSETED);
+
+    if(*(uint8_t*)this->saIPCControl == YES)
+        isSeted = true;
+    else if(*(uint8_t*)this->saIPCControl == NO)
+        isSeted = false;
+    else
+        throw std::runtime_error("Erro na comunicação entre processos");
+
+    *(uint8_t*)this->saIPCControl = END;
+
+    sem_post(this->sem);
+
+    return isSeted;
+}
+
+void ss::manager::computersManager::IsHostSetedResponse()
+{
+    if(this->hostSet)
+        *(uint8_t*)this->saIPCControl = YES;
+    else
+        *(uint8_t*)this->saIPCControl = NO;
+        
+    while((*(uint8_t*)this->saIPCControl) != END);
 }

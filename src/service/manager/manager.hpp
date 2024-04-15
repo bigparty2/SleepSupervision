@@ -64,6 +64,9 @@ namespace ss
             //Define o computador host
             void SetHost(computer computer);
 
+            //Retorna a informação se o computador host está definido
+            bool IsHostSeted() const;
+
             private:
 
             /// @brief Variavel para validar se o computador é host
@@ -74,6 +77,7 @@ namespace ss
             //este deve ser atribuido por memoria compartilhada para que o processo que gerencia a
             //lista de computadores possa definir o host e fornece-lo para os demais processos.
             computer hostComputer;
+            bool hostSet;
 
             //Responde a uma chamada da função Get() para comunicação entre processos
             void GetResponse();
@@ -92,6 +96,9 @@ namespace ss
 
             /// @brief Responde a chamada de definir o computador host
             void SetHostResponse();
+
+            /// @brief Responde a chamada de verificar se o computador host está definido
+            void IsHostSetedResponse();
 
             //Atualiza a data da ultima atualização
             void UpdateLastUpdate();
@@ -146,6 +153,9 @@ namespace ss
             static constexpr int REMOVE  = 10;  //Remover elemento 
             static constexpr int GETHOST = 11;  //Retornar host
             static constexpr int SETHOST = 12;  //Definir host
+            static constexpr int ISSETED = 13;  //Verificar se host está definido
+            static constexpr int YES     = 14;  //Indica que host foi definido
+            static constexpr int NO      = 15;  //Indica que host não foi definido
         };      
     }       
 }
