@@ -3,7 +3,7 @@
 
 using namespace ss;
 
-manager::computersManager::computersManager()
+manager::computersManager::computersManager(bool isHost)
 {
     //inicialização dos ponteiros para memória compartilhada
     this->saLastUpdate = mmap(NULL, sizeof(uint64_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -13,11 +13,18 @@ manager::computersManager::computersManager()
     this->saStatus = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->saIPCControl = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
+    //atribuição da variavel host
+    this->isHost = isHost;
+
     //ultima atualização
     *(uint64_t*)this->saLastUpdate = 0;
 
     //captura dos dados do computador local
     this->thisComputer.GetComputerInfo();
+
+    //atribuição do host caso seja host
+    if(isHost)
+        this->hostComputer = this->thisComputer;
 
     //inicializacao do controle comunicação entre processos
     *(uint64_t*)this->saIPCControl = WAIT;
@@ -218,6 +225,26 @@ void manager::computersManager::UpdateResponse()
     this->UpdateLastUpdate();
 }
 
+void ss::manager::computersManager::GetHostResponse()
+{
+    this->WriteOnSA(this->thisComputer);
+
+    *(uint8_t*)this->saIPCControl = WAIT;
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+}
+
+void ss::manager::computersManager::SetHostResponse()
+{
+    *(uint8_t*)this->saIPCControl = WAIT;
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+
+    computer pcd = ReadFromSA();
+
+    this->hostComputer = pcd;
+}
+
 void manager::computersManager::Insert(computer computer)
 {
     sem_wait(this->sem);
@@ -273,6 +300,16 @@ void manager::computersManager::HandleRequest()
         this->GetResponse();
         break;
 
+    case GETHOST:
+
+        this->GetHostResponse();
+        break;
+
+    case SETHOST:
+
+        this->SetHostResponse();
+        break;
+
     default:
         break;
     }
@@ -311,4 +348,42 @@ void manager::computersManager::WriteOnSA(computer pcd)
 void manager::computersManager::__Insert(computer computer)
 {
     this->_data.push_back(computer);
+}
+
+computer ss::manager::computersManager::GetHost() const
+{
+    computer host;
+
+    sem_wait(this->sem);
+
+    while((*(uint8_t*)this->saIPCControl) != READY);
+
+    *(uint8_t*)this->saIPCControl = GETHOST;
+
+    while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+    host = ReadFromSA();
+
+    *(uint8_t*)this->saIPCControl = END;
+
+    sem_post(this->sem);
+
+    return host;
+}
+
+void ss::manager::computersManager::SetHost(computer computer)
+{
+    sem_wait(this->sem);
+
+    while((*(uint8_t*)this->saIPCControl) != READY);
+
+    *(uint8_t*)this->saIPCControl = SETHOST;
+
+    while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+    WriteOnSA(computer);
+
+    *(uint8_t*)this->saIPCControl = END;
+
+    sem_post(this->sem);
 }

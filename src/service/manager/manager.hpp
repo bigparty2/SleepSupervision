@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-// #include "../../common/types.hpp"
 #include "../../common/computer/computer.hpp"
 #include "../../common/MAC/mac.hpp"
 #include "../../common/IPV4/ipv4.hpp"
@@ -30,7 +29,7 @@ namespace ss
         {
             public:
 
-            computersManager();
+            computersManager(bool isHost);
             ~computersManager();
 
             //Insere na lista os dados de um computador
@@ -59,7 +58,22 @@ namespace ss
             //Instancia com dados deste computador
             computer thisComputer;
 
+            //Retorna o computador host
+            computer GetHost() const;
+
+            //Define o computador host
+            void SetHost(computer computer);
+
             private:
+
+            /// @brief Variavel para validar se o computador é host
+            bool isHost;
+          
+            //Dados do computador host
+            //Obs.: Como os dados do computador host são adquiridos após a separação dos processos
+            //este deve ser atribuido por memoria compartilhada para que o processo que gerencia a
+            //lista de computadores possa definir o host e fornece-lo para os demais processos.
+            computer hostComputer;
 
             //Responde a uma chamada da função Get() para comunicação entre processos
             void GetResponse();
@@ -72,6 +86,12 @@ namespace ss
 
             //
             void RemoveResponse();
+
+            /// @brief Responde a chamada de pegar os dados do computador host
+            void GetHostResponse();
+
+            /// @brief Responde a chamada de definir o computador host
+            void SetHostResponse();
 
             //Atualiza a data da ultima atualização
             void UpdateLastUpdate();
@@ -124,6 +144,8 @@ namespace ss
             static constexpr int ENDLIST = 8;   //Fim da lista
             static constexpr int SIZE    = 9;   //Quantidade de elementos
             static constexpr int REMOVE  = 10;  //Remover elemento 
+            static constexpr int GETHOST = 11;  //Retornar host
+            static constexpr int SETHOST = 12;  //Definir host
         };      
     }       
 }

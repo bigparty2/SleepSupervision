@@ -51,15 +51,14 @@ int main (int argc, char** argv)
     }
 
     //gerenciador de participantes compartilhado
-    ss::manager::computersManager cm;
+    ss::manager::computersManager cm(isManager);
 
     //inicia o subserviço de descoberta
     auto pidDiscovery = fork();
     if(!pidDiscovery)
     {
         ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo do Discovery");
-
-    
+ 
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Discovery");
 

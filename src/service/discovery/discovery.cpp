@@ -64,8 +64,20 @@ void discovery::DiscoverySubservice::clientRun()
         //Verifica se o pacote recebido é uma resposta
         if(response.GetPacket().message == network::packet::OK)
         {
-           //Computador adicionado no sistema
-           discovery = true;
+            //Computador adicionado no sistema
+            discovery = true;
+
+            //Computador host
+            auto host = computer((char*)response.GetPacket().nameOrigin, 
+                                network::MAC(response.GetPacket().macOrigin), 
+                                network::IPV4(response.GetPacket().ipv4Origin), 
+                                computer::computerStatus::awake);
+
+            //Definição do computador host
+            this->computersManager->SetHost(host);
+
+            //log
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
         }
     }
 }
