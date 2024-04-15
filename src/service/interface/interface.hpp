@@ -233,6 +233,8 @@ namespace ss
             const std::string title = "Sleep Supervison";
             const std::string tableTitle = "Computadores conectados ao sistema";
             const std::string noDataMsg = "Não há computadores identificados no sistema";
+            const std::string hostMsg = "Dados do host: ";
+            const std::string clientWaittMsg = "A procura de um host para se conectar...";
             const std::string frameTopLeft = "╔";
             const std::string frameHorizontal = "═";
             const std::string frameTopRight = "╗";

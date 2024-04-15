@@ -250,6 +250,8 @@ void ss::manager::computersManager::SetHostResponse()
     computer pcd = ReadFromSA();
 
     this->hostComputer = pcd;
+
+    this->UpdateLastUpdate();
 }
 
 void manager::computersManager::Insert(computer computer)

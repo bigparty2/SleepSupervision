@@ -406,8 +406,23 @@ void interface::interfaceManager::Draw()
     std::cout << string::ToCenter(this->title, colunasX);
     this->SetColorDefault();
 
+    //Verifica se é participante
+    if(!this->IsManager)
+    {
+        if(this->machinesManager->IsHostSeted())
+        {
+            auto host = this->machinesManager->GetHost();
+            this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
+            std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
+        }
+        else
+        {
+            this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
+            std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
+        }
+    }
     //Verifica se há computadores a ser exibidos
-    if(this->machines.size())
+    else if(this->machines.size())
     {
         //Atualiza informação de posicionamento de elementos
         this->numOfPages = ceil((float)this->machines.size()/rowsPerPage);
