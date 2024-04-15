@@ -77,7 +77,6 @@ namespace ss
             //este deve ser atribuido por memoria compartilhada para que o processo que gerencia a
             //lista de computadores possa definir o host e fornece-lo para os demais processos.
             computer hostComputer;
-            bool hostSet;
 
             //Responde a uma chamada da função Get() para comunicação entre processos
             void GetResponse();

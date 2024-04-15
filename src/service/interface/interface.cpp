@@ -414,11 +414,19 @@ void interface::interfaceManager::Draw()
             auto host = this->machinesManager->GetHost();
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
+
+            //Print instruções de comando
+            this->GotoYX(this->commandInfoLinePos, 1);
+            std::cout << string::ToCenter(this->noDataCommand, colunasX);
         }
         else
         {
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
+
+            //Print instruções de comando
+            this->GotoYX(this->commandInfoLinePos, 1);
+            std::cout << string::ToCenter(this->noDataCommand, colunasX);
         }
     }
     //Verifica se há computadores a ser exibidos
