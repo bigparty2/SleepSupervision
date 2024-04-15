@@ -12,6 +12,7 @@ manager::computersManager::computersManager(bool isHost)
     this->saIPV4 = mmap(NULL, sizeof(int32_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->saStatus = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->saIPCControl = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    this->saIsHostSeted = mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     //atribuição da variavel host
     this->isHost = isHost;
@@ -26,11 +27,13 @@ manager::computersManager::computersManager(bool isHost)
     if(isHost)
     {
         this->hostComputer = this->thisComputer;
+        *(bool*)this->saIsHostSeted = true;
         this->isHost = true;    
     }
     else
     {
         this->isHost = false;
+        *(bool*)this->saIsHostSeted = false;
     }
 
     //inicializacao do controle comunicação entre processos
@@ -251,6 +254,7 @@ void ss::manager::computersManager::SetHostResponse()
 
     this->hostComputer = pcd;
 
+    *(bool*)this->saIsHostSeted = true;
     this->UpdateLastUpdate();
 }
 
@@ -399,36 +403,5 @@ void ss::manager::computersManager::SetHost(computer computer)
 
 bool ss::manager::computersManager::IsHostSeted() const
 {
-    bool isSeted;
-
-    sem_wait(this->sem);
-
-    while((*(uint8_t*)this->saIPCControl) != READY);
-
-    *(uint8_t*)this->saIPCControl = ISSETED;
-
-    while((*(uint8_t*)this->saIPCControl) == ISSETED);
-
-    if(*(uint8_t*)this->saIPCControl == YES)
-        isSeted = true;
-    else if(*(uint8_t*)this->saIPCControl == NO)
-        isSeted = false;
-    else
-        throw std::runtime_error("Erro na comunicação entre processos");
-
-    *(uint8_t*)this->saIPCControl = END;
-
-    sem_post(this->sem);
-
-    return isSeted;
-}
-
-void ss::manager::computersManager::IsHostSetedResponse()
-{
-    if(this->hostSet)
-        *(uint8_t*)this->saIPCControl = YES;
-    else
-        *(uint8_t*)this->saIPCControl = NO;
-        
-    while((*(uint8_t*)this->saIPCControl) != END);
+    return *(bool*)this->saIsHostSeted;
 }

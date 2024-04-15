@@ -97,9 +97,6 @@ namespace ss
             /// @brief Responde a chamada de definir o computador host
             void SetHostResponse();
 
-            /// @brief Responde a chamada de verificar se o computador host está definido
-            void IsHostSetedResponse();
-
             //Atualiza a data da ultima atualização
             void UpdateLastUpdate();
 
@@ -137,6 +134,8 @@ namespace ss
 
             //Variavel de constrole para troca de informações entre processos
             void* saIPCControl = nullptr;    //int
+
+            void* saIsHostSeted = nullptr;
 
             static constexpr char* SEM_NAME = "/SS_COMPUTERSMANAGER_SEM";
 
