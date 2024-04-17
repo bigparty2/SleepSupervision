@@ -1,3 +1,19 @@
+/**
+ * @file main.cpp
+ * @brief Arquivo principal do programa SleepSupervison.
+ * 
+ * Este arquivo contém a função principal `main` que inicia o programa SleepSupervison.
+ * O programa é responsável por supervisionar o sono de um computador e gerenciar os participantes.
+ * Ele possui três subserviços: Discovery, Monitor e Interface.
+ * O subserviço de Discovery é responsável por descobrir os participantes na rede.
+ * O subserviço de Monitor é responsável por monitorar o sono dos participantes.
+ * O subserviço de Interface é responsável por fornecer uma interface para interagir com o programa.
+ * O programa pode ser iniciado como servidor (M) ou como participante (P), dependendo do argumento passado na linha de comando.
+ * 
+ * @param argc O número de argumentos passados na linha de comando.
+ * @param argv Um array de strings contendo os argumentos passados na linha de comando.
+ * @return O código de saída do programa.
+ */
 #include "service/discovery/discovery.hpp"
 #include "service/interface/interface.hpp"
 #include "service/manager/manager.hpp"
