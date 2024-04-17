@@ -152,7 +152,7 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
-                this->machinesManager->Remove(localComputer.macAddr);
+                this->machinesManager->Remove(localComputer.GetMAC());
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
 
@@ -287,7 +287,7 @@ void interface::interfaceManager::InputManager()
                     //Tabela
                     else
                     {
-                        network::wakeOnLan::Awake(this->machines.at(selection + ((CurrentPage - 1) * rowsPerPage)).macAddr.ToString());
+                        network::wakeOnLan::Awake(this->machines.at(selection + ((CurrentPage - 1) * rowsPerPage)).GetMAC().ToString());
                     }
 
                 }    
@@ -498,7 +498,7 @@ void interface::interfaceManager::PrintFooter()
 {
     this->GotoYX(res->Get().y, 1);
     this->SetTextBlackBackgroundWrite();
-    std::cout << string::ToCenter("Hostname: " + localComputer.name, res->Get().x);
+    std::cout << string::ToCenter("Hostname: " + localComputer.GetName(), res->Get().x);
     this->GotoYX(res->Get().y, 1);
     std::cout << "Modo: " << (this->IsManager ? "Gerenciador  │" : "Participante │");
     this->GotoYX(res->Get().y, res->Get().x - 21);
@@ -553,8 +553,8 @@ void interface::interfaceManager::PrintTable()
     for(int i = 0; i < pcs.size(); i++, line++)
     {
         //Verifica se o tamanho do host name não ultrapassa o tamanho da coluna
-        if(pcs.at(i).name.length() > this->headerElementLenght - 4)
-            pcs.at(i).name = pcs.at(i).name.substr(0, pcs.at(i).name.size() - 4) + "...";
+        if(pcs.at(i).GetName().length() > this->headerElementLenght - 4)
+            pcs.at(i).GetName() = pcs.at(i).GetName().substr(0, pcs.at(i).GetName().size() - 4) + "...";
 
         //vai para inicio da linha
         this->GotoYX(line, this->headerElement0Pos);
@@ -564,13 +564,13 @@ void interface::interfaceManager::PrintTable()
             this->SetTextBlackBackgroundWrite();
 
         //std::cout << string::ToCenter(std::string(pcs.at(i).hostname + std::to_string(pcs.at(i).hostname.size())), this->headerElementLenght);
-        std::cout << string::ToCenter(pcs.at(i).name, this->headerElementLenght);
+        std::cout << string::ToCenter(pcs.at(i).GetName(), this->headerElementLenght);
         std::cout << "│";
-        std::cout << string::ToCenter(pcs.at(i).macAddr.ToString(), this->headerElementLenght);
+        std::cout << string::ToCenter(pcs.at(i).GetMAC().ToString(), this->headerElementLenght);
         std::cout << "│";
-        std::cout << string::ToCenter(pcs.at(i).ipv4.ToString(), this->headerElementLenght);
+        std::cout << string::ToCenter(pcs.at(i).GetIPV4().ToString(), this->headerElementLenght);
         std::cout << "│";
-        std::cout << string::ToCenter(computer::StatusToStringBR(pcs.at(i).status), this->headerElementLenght);
+        std::cout << string::ToCenter(computer::StatusToStringBR(pcs.at(i).GetStatus()), this->headerElementLenght);
 
         if(selection == i)
             this->SetColorDefault();

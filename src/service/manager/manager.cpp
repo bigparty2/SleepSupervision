@@ -122,7 +122,7 @@ uint64_t manager::computersManager::IndexOf(std::string hostname)
 {
     for (int index = 0; index < this->_data.size(); index++)
     {
-        if(this->_data.at(index).name == hostname)
+        if(this->_data.at(index).GetName() == hostname)
             return index;
     }
 
@@ -133,7 +133,7 @@ uint64_t manager::computersManager::IndexOf(network::IPV4 ipv4)
 {
     for (int index = 0; index < this->_data.size(); index++)
     {
-        if(this->_data.at(index).ipv4 == ipv4)
+        if(this->_data.at(index).GetIPV4() == ipv4)
             return index;
     }
 
@@ -144,7 +144,7 @@ uint64_t manager::computersManager::IndexOf(network::MAC macAddr)
 {
     for (int index = 0; index < this->_data.size(); index++)
     {
-        if(this->_data.at(index).macAddr == macAddr)
+        if(this->_data.at(index).GetMAC() == macAddr)
             return index;
     }
 
@@ -225,7 +225,7 @@ void manager::computersManager::UpdateResponse()
 
     computer pcd = ReadFromSA();
 
-    auto index = manager::computersManager::IndexOf(pcd.ipv4);
+    auto index = manager::computersManager::IndexOf(pcd.GetIPV4());
 
     if(index == manager::computersManager::npos)
         return;
@@ -284,7 +284,7 @@ void manager::computersManager::InsertResponse()
 
     computer pcd = ReadFromSA();
 
-    if(manager::computersManager::IndexOf(pcd.ipv4) != manager::computersManager::npos)
+    if(manager::computersManager::IndexOf(pcd.GetIPV4()) != manager::computersManager::npos)
         //TODO: Implementar retorno para indicar que já existe na lista
         return;
 
@@ -347,16 +347,16 @@ void manager::computersManager::WriteOnSA(computer pcd)
     std::fill((char*)this->saHostname, (char*)this->saHostname + 64, 0);
 
     //Copia o hostname para o vetor
-    std::memcpy((char*)this->saHostname, pcd.name.c_str(), pcd.name.size());
+    std::memcpy((char*)this->saHostname, pcd.GetName().c_str(), pcd.GetName().size());
     
     //Copia o endereço MAC para o vetor
-    std::memcpy((char*)this->saMAC, pcd.macAddr.Get(), 6);
+    std::memcpy((char*)this->saMAC, pcd.GetMAC().Get(), 6);
     
     //Copia o IPV4 para a variavel
-    *(int32_t*)this->saIPV4 = pcd.ipv4.Get();
+    *(int32_t*)this->saIPV4 = pcd.GetIPV4().Get();
 
     //Copia o Status para a variável
-    *(uint8_t*)this->saStatus = static_cast<uint8_t>(pcd.status);
+    *(uint8_t*)this->saStatus = static_cast<uint8_t>(pcd.GetStatus());
 }
 
 void manager::computersManager::__Insert(computer computer)
