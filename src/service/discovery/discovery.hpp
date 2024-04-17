@@ -5,6 +5,7 @@
 #include "../../common/computer/computer.hpp"
 #include "../../common/socket/socket.hpp"
 #include "../../common/packet/packet.hpp"
+#include "../../common/thread/thread.hpp"
 
 namespace ss
 {

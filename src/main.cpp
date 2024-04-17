@@ -82,6 +82,8 @@ int main (int argc, char** argv)
 
         ds.Start(isManager);
 
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando processo do Discovery");
+
         return EXIT_SUCCESS;
     }
 

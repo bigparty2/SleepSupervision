@@ -257,6 +257,9 @@ void ss::manager::computersManager::SetHostResponse()
     *(bool*)this->saIsHostSeted = true;
 
     this->UpdateLastUpdate();
+
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Host foi definido"); //apenas para validacoes
+
 }
 
 void manager::computersManager::Insert(computer computer)
@@ -404,7 +407,7 @@ void ss::manager::computersManager::SetHost(computer computer)
 
 bool ss::manager::computersManager::IsHostSeted() const
 {
-    if(*(bool*)this->saIsHostSeted)
+    if(!*(bool*)this->saIsHostSeted)
         logger::GetInstance().Log(__PRETTY_FUNCTION__, "Host ainda nao esta definido."); //apenas para validacoes
     else
         logger::GetInstance().Log(__PRETTY_FUNCTION__, "Host ja esta definido."); //apenas para validacoes
