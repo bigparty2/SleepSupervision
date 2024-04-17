@@ -25,6 +25,14 @@ namespace ss
 {
     namespace manager
     {
+        /**
+         * @brief Classe para gerenciamento de computadores.
+         * 
+         * A classe `computersManager` é responsável por gerenciar os computadores da rede.
+         * Ela permite inserir, atualizar e remover computadores da lista, bem como obter a lista de computadores.
+         * 
+         * A classe também permite tratar requisições dos processos, como inserção, atualização e remoção de computadores.
+         */
         class computersManager
         {
             public:

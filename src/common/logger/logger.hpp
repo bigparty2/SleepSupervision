@@ -14,7 +14,9 @@
 
 namespace ss
 {
-    // Gerenciador de log
+    /**
+     * @brief Classe responsável por registrar atividades, avisos e erros em um arquivo de log.
+     */
     class logger
     {
         private:
@@ -23,7 +25,10 @@ namespace ss
         logger(logger &other) = delete;
         void operator=(const logger &) = delete;
 
-        // Constructor
+        /**
+         * @brief Construtor da classe logger.
+         * @param fileName O nome do arquivo de log. O valor padrão é "sleepsupervison.log".
+         */
         logger(std::string fileName = "sleepsupervison.log");
 
         // Instancia do arquivo de log
@@ -32,27 +37,52 @@ namespace ss
         // Mutex para garantir que apenas há uma escrita em arquivo por vez
         std::mutex writeMtx;
 
-        // Função para escrita em arquivo
+        /**
+         * @brief Função para escrever no arquivo de log.
+         * @param typeStr O tipo de registro (atividade, aviso ou erro).
+         * @param origin A origem do registro.
+         * @param message A mensagem do registro.
+         */
         void write(std::string typeStr, std::string origin, std::string message);
 
-        // Pegar a data atual do sistema
+        /**
+         * @brief Obtém a data atual do sistema.
+         * @return A data atual no formato "dd/mm/aaaa".
+         */
         std::string GetDate();
 
         public:
 
-        // Pegar instancia da classe
+        /**
+         * @brief Obtém a instância da classe logger.
+         * @return A instância da classe logger.
+         */
         static logger& GetInstance();
 
-        // Destructor
+        /**
+         * @brief Destrutor da classe logger.
+         */
         ~logger();
 
-        // Inclusão de registro de atividade no log
+        /**
+         * @brief Registra uma atividade no arquivo de log.
+         * @param origin A origem da atividade.
+         * @param message A mensagem da atividade.
+         */
         void Log(std::string origin, std::string message);
 
-        // Inclusão de registro de aviso no log
+        /**
+         * @brief Registra um aviso no arquivo de log.
+         * @param origin A origem do aviso.
+         * @param message A mensagem do aviso.
+         */
         void Warning(std::string origin, std::string message);
 
-        // Inclusão de registro de erro no log
+        /**
+         * @brief Registra um erro no arquivo de log.
+         * @param origin A origem do erro.
+         * @param message A mensagem do erro.
+         */
         void Error(std::string origin, std::string message);
     }; 
 }

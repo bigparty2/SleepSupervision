@@ -10,51 +10,113 @@
 
 namespace ss
 {
-    //Classe para armazenamento dos dados de um computador
+    /**
+     * @brief Classe que representa um computador.
+     */
     class computer
     {
         public:
 
-        //Enumeração dos posiveis estados do computador
+        /**
+         * @brief Enumeração que define os possíveis estados de um computador.
+         */
         enum computerStatus 
         {
-            awake = 0, 
-            sleep = 1, 
-            unknown = 2
+            awake = 0, /**< O computador está acordado. */
+            sleep = 1, /**< O computador está em modo de suspensão. */
+            unknown = 2 /**< O estado do computador é desconhecido. */
         };
 
-        // Conversor do status para string
+        /**
+         * @brief Converte o estado do computador para uma string em inglês.
+         * @return A string que representa o estado do computador em inglês.
+         */
         std::string StatusToStringEN();
+
+        /**
+         * @brief Converte o estado do computador para uma string em português.
+         * @return A string que representa o estado do computador em português.
+         */
         std::string StatusToStringBR();
+
+        /**
+         * @brief Converte o estado do computador para uma string em inglês.
+         * @param status O estado do computador.
+         * @return A string que representa o estado do computador em inglês.
+         */
         static std::string StatusToStringEN(computerStatus status);
+
+        /**
+         * @brief Converte o estado do computador para uma string em português.
+         * @param status O estado do computador.
+         * @return A string que representa o estado do computador em português.
+         */
         static std::string StatusToStringBR(computerStatus status);
 
-        // Pegar dados do computador local
+        /**
+         * @brief Obtém as informações do computador.
+         */
         void GetComputerInfo();
 
-        //Constructor
+        /**
+         * @brief Construtor padrão da classe computer.
+         */
         computer(){};
+
+        /**
+         * @brief Construtor da classe computer.
+         * @param name O nome do computador.
+         * @param macAddr O endereço MAC do computador.
+         * @param ipv4 O endereço IPv4 do computador.
+         * @param status O estado do computador.
+         */
         computer(std::string name, network::MAC macAddr, network::IPV4 ipv4, computerStatus status);
 
-        // Pegar o nome do computador local
+        /**
+         * @brief Obtém o nome do computador.
+         * @return O nome do computador.
+         */
         static std::string GetComputerName(); 
 
-        //Gets e sets de atributos
+        /**
+         * @brief Obtém o nome do computador.
+         * @return O nome do computador.
+         */
         std::string GetName() const;
+
+        /**
+         * @brief Obtém o endereço MAC do computador.
+         * @return O endereço MAC do computador.
+         */
         network::MAC GetMAC() const;
+
+        /**
+         * @brief Obtém o endereço IPv4 do computador.
+         * @return O endereço IPv4 do computador.
+         */
         network::IPV4 GetIPV4() const;
+
+        /**
+         * @brief Obtém o estado do computador.
+         * @return O estado do computador.
+         */
         computerStatus GetStatus() const;
+
+        /**
+         * @brief Define o estado do computador.
+         * @param status O estado do computador.
+         */
         void SetStatus(computerStatus status);
 
-        //private: Desabilitado para testes
+        private: 
 
-        std::string name;
-        network::MAC macAddr;
-        network::IPV4 ipv4;
-        computerStatus status;
+        std::string name; /**< O nome do computador. */
+        network::MAC macAddr; /**< O endereço MAC do computador. */
+        network::IPV4 ipv4; /**< O endereço IPv4 do computador. */
+        computerStatus status; /**< O estado do computador. */
     };
 
-    typedef std::vector<ss::computer> computers;
+    typedef std::vector<ss::computer> computers; /**< Um vetor de computadores. */
 }
 
 #endif //COMPUTER_HPP

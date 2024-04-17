@@ -12,51 +12,59 @@ namespace ss
 {
     namespace monitor
     {
+        /**
+         * @brief Classe que representa o subserviço de monitoramento.
+         */
         class MonitorSubservice
         {
             public:
             /**
-             * @brief Constructs a MonitorSubservice object.
+             * @brief Constrói um objeto MonitorSubservice.
+             * 
+             * @param computersManager Referência para o objeto computersManager para gerenciar os computadores.
              */
             MonitorSubservice(manager::computersManager& computersManager);
 
             /**
-             * @brief Destroys the MonitorSubservice object.
+             * @brief Destrói o objeto MonitorSubservice.
              */
             ~MonitorSubservice();
 
             /**
-             * @brief Starts the monitor subservice.
+             * @brief Inicia o subserviço de monitoramento.
              * 
-             * @param isServer Flag indicating whether to start as a server or not. Default is false.
+             * @param isServer Flag que indica se deve iniciar como servidor ou não. O padrão é falso.
              */
             void Start(bool isServer = false);
 
             /**
-             * @brief Stops the monitor subservice.
+             * @brief Para o subserviço de monitoramento.
              */
             void Stop();
 
             private:
             /**
-             * @brief Runs the client process.
+             * @brief Executa o processo do cliente.
              */
             void clientRun();
 
             /**
-             * @brief Runs the server process.
+             * @brief Executa o processo do servidor.
              */
             void serverRun();
 
+            /**
+             * @brief Atualiza a lista de computadores para monitorar.
+             */
             void UpdateComputersToMonior();
 
-            // Instance of the computersManager class for managing computers
+            // Instância da classe computersManager para gerenciar os computadores
             manager::computersManager* computersManager;
 
-            // Last update of the computer list
+            // Última atualização da lista de computadores
             uint64_t lastUpdate;
 
-            // Timeout for receiving packets
+            // Tempo limite para receber pacotes
             timeval TIMEOUT;
 
             struct monitorFail
@@ -65,10 +73,10 @@ namespace ss
                 uint8_t failCount;
             };
 
-            // List of failed monitors
+            // Lista de monitores com falha
             std::vector<monitorFail> failedMonitors;
 
-            // Maximo de falhas
+            // Máximo de falhas permitidas
             static const uint8_t MAX_FAILS = 3;
 
             static const uint16_t MONITOR_PORT_SERVER = 45103;

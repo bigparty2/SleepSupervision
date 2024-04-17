@@ -13,43 +13,98 @@ namespace ss
 {
     namespace network
     {
-        //Estrutura para tratamento de endereço IPV4
+        /**
+         * @brief Classe que representa um endereço IPv4.
+         */
         class IPV4
         {
         public:
 
-            //constructor
+            /**
+             * @brief Construtor padrão da classe IPV4.
+             */
             IPV4(){}
+
+            /**
+             * @brief Construtor da classe IPV4 que recebe um endereço IPv4 em formato inteiro.
+             * @param addr O endereço IPv4 em formato inteiro.
+             */
             IPV4(uint32_t addr);
+
+            /**
+             * @brief Construtor da classe IPV4 que recebe um endereço IPv4 em formato de string.
+             * @param addr O endereço IPv4 em formato de string.
+             */
             IPV4(const std::string& addr);
 
-            //operador
+            /**
+             * @brief Sobrecarga do operador de atribuição para um endereço IPv4 em formato de string.
+             * @param addr O endereço IPv4 em formato de string.
+             * @return Uma referência para o objeto IPV4 atualizado.
+             */
             IPV4& operator=(const std::string&);
+
+            /**
+             * @brief Sobrecarga do operador de atribuição para um endereço IPv4 em formato inteiro.
+             * @param addr O endereço IPv4 em formato inteiro.
+             * @return Uma referência para o objeto IPV4 atualizado.
+             */
             IPV4& operator=(const uint32_t&);
+
+            /**
+             * @brief Sobrecarga do operador de igualdade para comparar dois endereços IPv4.
+             * @param other O outro endereço IPv4 a ser comparado.
+             * @return True se os endereços IPv4 forem iguais, False caso contrário.
+             */
             bool operator==(const IPV4&);
 
-            //Retorna o IP como string
+            /**
+             * @brief Retorna o endereço IPv4 como uma string.
+             * @return O endereço IPv4 como uma string.
+             */
             std::string ToString();
+
+            /**
+             * @brief Retorna o endereço IPv4 como uma wide string.
+             * @return O endereço IPv4 como uma wide string.
+             */
             std::wstring ToWString();
 
-            //Retorna o endereço IP como int32
+            /**
+             * @brief Retorna o endereço IPv4 como um inteiro.
+             * @return O endereço IPv4 como um inteiro.
+             */
             uint32_t Get();
 
-            //Pega o endereco IPV4 local 
+            /**
+             * @brief Obtém o endereço IPv4 local para uma interface de rede específica.
+             * @param interface A interface de rede para a qual se deseja obter o endereço IPv4 local.
+             */
             void GetIPV4(std::string interface);
 
         private:
 
-            //de Int32 para ByteArr
+            /**
+             * @brief Converte um endereço IPv4 em formato inteiro para um array de bytes.
+             * @param addr O endereço IPv4 em formato inteiro.
+             */
             void IntToByteArr(uint32_t addr);
 
-            //de ByteArr para Int32
+            /**
+             * @brief Converte um array de bytes para um endereço IPv4 em formato inteiro.
+             * @return O endereço IPv4 em formato inteiro.
+             */
             uint32_t ByteArrToInt();
 
-            // Validação de IPV4 como string
+            /**
+             * @brief Valida um endereço IPv4 em formato de string.
+             * @param addr O endereço IPv4 em formato de string.
+             */
             void IPV4Validation(const std::string& addr);
 
-            //Armazenamento do endereço (network byte order)
+            /**
+             * @brief Armazena o endereço IPv4 em formato de inteiro (network byte order).
+             */
             uint32_t _address = 0;
         };
     }

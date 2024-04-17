@@ -11,12 +11,28 @@ namespace ss
 {
     namespace network
     {
-        //Wake-on-LAN (WoL): acordar dispositivos que suportam a tecnologia
+        /**
+         * @brief Classe para acordar dispositivos que suportam a tecnologia Wake-on-LAN (WoL).
+         * 
+         * A classe `wakeOnLan` permite acordar dispositivos que suportam a tecnologia Wake-on-LAN (WoL).
+         * O WoL é uma tecnologia que permite ligar dispositivos remotamente através da rede, enviando um pacote mágico (magic packet) para o endereço MAC do dispositivo.
+         * 
+         * A classe possui uma classe interna `magicPacket` que é responsável por construir o pacote mágico.
+         * O pacote mágico é um pacote de tamanho fixo (102 bytes) que contém informações necessárias para acordar o dispositivo.
+         * 
+         * A classe `wakeOnLan` também possui um método estático `Awake` que permite acordar um computador com base em seu endereço MAC.
+         * O método `Awake` envia o pacote mágico para o endereço MAC especificado, utilizando a porta padrão do WoL (porta 9).
+         */
         class wakeOnLan
         {
             public:
 
-            //Classe para construção do pacote mágico
+            /**
+             * @brief Classe interna para construção do pacote mágico.
+             * 
+             * A classe `magicPacket` é responsável por construir o pacote mágico utilizado para acordar o dispositivo.
+             * O pacote mágico é um pacote de tamanho fixo (102 bytes) que contém informações necessárias para acordar o dispositivo.
+             */
             class magicPacket
             {
                 //instancia de um magic packet 
@@ -27,20 +43,48 @@ namespace ss
 
                 public:
     
-                //constructor recebendo MAC address do computador
+                /**
+                 * @brief Construtor da classe `magicPacket`.
+                 * 
+                 * @param macAddr O endereço MAC do computador.
+                 */
                 magicPacket(const std::string &macAddr);
 
-                //Constroe o pacote magico a partir de um endereço mac de forma estática
+                /**
+                 * @brief Constrói o pacote mágico a partir de um endereço MAC de forma estática.
+                 * 
+                 * @param macAddr O endereço MAC do computador.
+                 * @return O pacote mágico construído.
+                 */
                 static std::string Build(const std::string &macAddr);
 
-                //Transformação do pacote magico para string
+                /**
+                 * @brief Converte o pacote mágico para uma string.
+                 * 
+                 * @param mp O pacote mágico.
+                 * @return O pacote mágico convertido para uma string.
+                 */
                 static std::string ToString(const std::string &mp);
+
+                /**
+                 * @brief Converte o pacote mágico para uma string.
+                 * 
+                 * @return O pacote mágico convertido para uma string.
+                 */
                 std::string ToString();
 
-                //Retorna o pacote mágico para transmissão da mensagem
+                /**
+                 * @brief Retorna o pacote mágico para transmissão da mensagem.
+                 * 
+                 * @return O pacote mágico.
+                 */
                 const char* Get();
 
-                //Retorna o tamanho do pacote mágico
+                /**
+                 * @brief Retorna o tamanho do pacote mágico.
+                 * 
+                 * @return O tamanho do pacote mágico.
+                 */
                 static byte Length();
             };
 
@@ -51,7 +95,12 @@ namespace ss
             
             public:
 
-            //Acorda um computador com base em seu endereço MAC
+            /**
+             * @brief Acorda um computador com base em seu endereço MAC.
+             * 
+             * @param macAddress O endereço MAC do computador.
+             * @param port A porta utilizada para enviar o pacote mágico (opcional, padrão é a porta 9).
+             */
             static void Awake(const std::string &macAddress, const byte &port = DEFAULT_PORT);
         };
     }
