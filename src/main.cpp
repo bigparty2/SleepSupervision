@@ -66,6 +66,8 @@ int main (int argc, char** argv)
         }
     }
 
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Manager");
+
     //gerenciador de participantes compartilhado
     ss::manager::computersManager cm(isManager);
 
@@ -73,7 +75,7 @@ int main (int argc, char** argv)
     auto pidDiscovery = fork();
     if(!pidDiscovery)
     {
-        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo do Discovery");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Discovery");
  
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Discovery");
@@ -82,7 +84,7 @@ int main (int argc, char** argv)
 
         ds.Start(isManager);
 
-        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando processo do Discovery");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando subserviço Discovery");
 
         return EXIT_SUCCESS;
     }
@@ -91,15 +93,15 @@ int main (int argc, char** argv)
     auto pidMonitor = fork();
     if(!pidMonitor)
     {
-        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo do Monitor");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Monitor");
 
         prctl(PR_SET_NAME, "SS_Monitor");
 
         ss::monitor::MonitorSubservice ms(cm);
 
-        // ms.Start(isManager);
+        ms.Start(isManager);
 
-        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando processo do Monitor");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando subserviço Monitor");
 
         return EXIT_SUCCESS;
     }
@@ -108,7 +110,7 @@ int main (int argc, char** argv)
     auto pidInterface = fork();
     if(!pidInterface)
     {
-        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado processo da Interface");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Interface");
 
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Interface");
@@ -121,15 +123,21 @@ int main (int argc, char** argv)
         //Aguarda finalização do serviço        
         interfaceManager.Join();
 
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando subserviço Interface");
+
         return EXIT_SUCCESS;
     }
     else
     {
         if(isManager)
+        {
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando loop de tratamento de requisições ao maanger");
+
             while(waitpid(pidInterface, NULL, WNOHANG) == 0)
             {
                 cm.HandleRequest();
             }
+        }
         else
         {
             //trava a execução WUNTRACED
