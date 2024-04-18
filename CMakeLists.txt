@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(SleepSupervison)
+project(SleepSupervision)
 
 #versão GCC 20
 set(CMAKE_CXX_STANDARD 20)
@@ -20,7 +20,7 @@ add_library(common_and_service STATIC ${COMMON_SRC} ${SERVICE_SRC})
 include_directories(src)
 
 # Adicione o executável do projeto
-add_executable(SleepSupervison src/main.cpp)
+add_executable(SleepSupervision src/main.cpp)
 
 # Vincule a biblioteca estática ao executável do projeto
-target_link_libraries(SleepSupervison common_and_service)
+target_link_libraries(SleepSupervision common_and_service)
