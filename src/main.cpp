@@ -28,7 +28,7 @@
 
 int main (int argc, char** argv)
 {
-    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepManager iniciado");
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepSupervision iniciado");
 
 
     //Define o nome do processo
@@ -97,7 +97,9 @@ int main (int argc, char** argv)
 
         ss::monitor::MonitorSubservice ms(cm);
 
-        ms.Start(isManager);
+        // ms.Start(isManager);
+
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando processo do Monitor");
 
         return EXIT_SUCCESS;
     }
@@ -137,6 +139,8 @@ int main (int argc, char** argv)
 
     kill(pidDiscovery, 9);
     kill(pidMonitor, 9);
+
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepSupervision encerrado.");
 
     return (0x0);
 }

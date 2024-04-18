@@ -35,13 +35,15 @@ void discovery::DiscoverySubservice::clientRun()
     auto socket = network::Socket(IPPROTO_UDP);
 
     //Configuracao do socket
+    // socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
     socket.SetConfig(SO_BROADCAST, 1);      //Habilita broadcast
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); //Timeout de recebimento
 
     //TODO: Criar loop para bind em uma porta mesmo se todas estiverem ocupadas
     //Bind do socket em uma porta de descoberta
     uint16_t port = DISCOVERY_PORT_CLIENT_INIT;
-    socket.Bind(port, DISCOVERY_PORT_CLIENT_END);
+    // socket.Bind(port, DISCOVERY_PORT_CLIENT_END);
+    socket.Bind(port);
 
     //Variavel de controle de sequencia de mensagens
     uint16_t sequence = 0;
@@ -56,6 +58,7 @@ void discovery::DiscoverySubservice::clientRun()
     {
         //Loop de descoberta
         while(discovery != true)
+        // while(true)
         {
             logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Procurando Host.");
 
@@ -88,7 +91,7 @@ void discovery::DiscoverySubservice::clientRun()
                 logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
             
                 //Computador adicionado no sistema
-                //discovery = true;
+                discovery = true;
             }
             else
             {
@@ -148,14 +151,12 @@ void discovery::DiscoverySubservice::serverRun()
                 //Pacote de resposta
                 network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
-                for(int i = 0; i < 3; i++)
-                {
-                    //Envio de pacote de resposta
-                    socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
+                //Envio de pacote de resposta
+                // socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
+                socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
 
-                    ss::thread::Sleep(125);
-                }
-
+                ss::thread::Sleep(125);
+                
                 break;
             }
             

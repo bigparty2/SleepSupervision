@@ -126,6 +126,7 @@ ss::network::packet network::Socket::receivePacket()
         if(errno == EAGAIN || errno == EWOULDBLOCK)
         {
             //Timeout
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Timeout");
             return ss::network::packet(); 
         }
         else
