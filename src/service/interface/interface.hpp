@@ -270,9 +270,6 @@ namespace ss
             // Thread de controle de encerramento
             std::thread tend;
 
-            // Nome do host do computador local
-            computer localComputer;
-
             // Controle de seleção
             short selection = -1;
 

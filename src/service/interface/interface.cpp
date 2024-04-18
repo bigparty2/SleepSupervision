@@ -81,9 +81,6 @@ void interface::interfaceManager::Init(ss::manager::computersManager &cm, bool m
     this->currentOrder = orderBy::hostnameAsc;
     this->previousOrder = orderBy::hostnameDesc;
 
-    // Pega os dados do computador local
-    localComputer.GetComputerInfo();
-
     //Define para o padrão de caracteres da linguagem corrente
     std::setlocale(LC_ALL, "");
 
@@ -152,7 +149,8 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
-                this->machinesManager->Remove(localComputer.GetMAC());
+                // this->machinesManager->Remove(localComputer.GetMAC());
+                this->machinesManager->Remove(this->machinesManager->thisComputer.GetMAC());
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
 
@@ -498,7 +496,7 @@ void interface::interfaceManager::PrintFooter()
 {
     this->GotoYX(res->Get().y, 1);
     this->SetTextBlackBackgroundWrite();
-    std::cout << string::ToCenter("Hostname: " + localComputer.GetName(), res->Get().x);
+    std::cout << string::ToCenter("Hostname: " + this->machinesManager->thisComputer.GetName(), res->Get().x);
     this->GotoYX(res->Get().y, 1);
     std::cout << "Modo: " << (this->IsManager ? "Gerenciador  │" : "Participante │");
     this->GotoYX(res->Get().y, res->Get().x - 21);
