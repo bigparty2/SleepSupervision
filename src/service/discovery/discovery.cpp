@@ -35,7 +35,6 @@ void discovery::DiscoverySubservice::clientRun()
     auto socket = network::Socket(IPPROTO_UDP);
 
     //Configuracao do socket
-    // socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
     socket.SetConfig(SO_BROADCAST, 1);      //Habilita broadcast
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); //Timeout de recebimento
 
@@ -54,38 +53,40 @@ void discovery::DiscoverySubservice::clientRun()
     //Variavel de controle para descoberta
     bool discovery = false;
 
-    try
+    //Loop de descoberta
+    while(discovery != true)
+    // while(true)
     {
-        //Loop de descoberta
-        while(discovery != true)
-        // while(true)
+        logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Procurando Host.");
+
+        //Envio de pacote de descoberta
+        socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
+
+        //Recebimento de pacote de resposta
+        auto response = socket.receivePacket();
+
+        if(response.IsDataInicialized())
         {
-            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Procurando Host.");
-
-            //Envio de pacote de descoberta
-            socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
-
-            //Recebimento de pacote de resposta
-            auto response = socket.receivePacket();
-
-            if(!response.IsDataInicialized())
-            {
-                //log
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host não respondeu.");
-                continue;
-            }
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Retorno do Host encontrado. Msg: " + std::to_string(response.GetPacket().message) + " Seq: " + std::to_string(response.GetPacket().seqNum) + " Port: " + std::to_string(response.GetPacket().portOrigin) + " IPV4: " + ss::network::IPV4::ToString(response.GetPacket().ipv4Origin) + " MAC: " + ss::network::MAC::ToString(response.GetPacket().macOrigin) + " Nome: " + (char*)response.GetPacket().nameOrigin);
 
             //Verifica se o pacote recebido é uma resposta
             if(response.GetPacket().message == network::packet::OK)
             {
+                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"O retorno era OK");
+
                 //Computador host
                 auto host = computer((char*)response.GetPacket().nameOrigin, 
                                     network::MAC(response.GetPacket().macOrigin), 
                                     network::IPV4(response.GetPacket().ipv4Origin), 
                                     computer::computerStatus::awake);
 
+                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"computer iniciado com dados do host");
+            
+
                 //Definição do computador host
                 this->computersManager->SetHost(host);
+
+                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"HostDefinido no computador manager.");
 
                 //log
                 logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
@@ -97,14 +98,8 @@ void discovery::DiscoverySubservice::clientRun()
             {
                 //log
                 logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host não encontrado.");
-            }        
-        }
-
-    }
-    catch(const std::exception& e)
-    {
-        // std::cerr << e.what() << '\n';
-        logger::GetInstance().Error(__PRETTY_FUNCTION__ ,e.what());
+            }
+        }        
     }
     
     //log

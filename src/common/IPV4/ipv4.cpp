@@ -48,6 +48,14 @@ std::string network::IPV4::ToString()
     return inet_ntoa(paddr);
 }
 
+std::string network::IPV4::ToString(int IPV4)
+{
+    struct in_addr paddr;
+    paddr.s_addr = ntohl(IPV4);
+
+    return inet_ntoa(paddr);
+}
+
 void network::IPV4::IPV4Validation(const std::string& addr)
 {
     if(addr.size() > 15 or std::count(addr.begin(), addr.end(), '.') != 3)

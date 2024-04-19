@@ -65,6 +65,13 @@ namespace ss
             std::string ToString();
 
             /**
+             * @brief Retorna o endereço IPv4 como uma string.
+             * @param IPV4 O endereço IPv4 em formato inteiro.
+             * @return O endereço IPv4 como uma string.
+             */
+            static std::string ToString(int IPV4);
+
+            /**
              * @brief Retorna o endereço IPv4 como uma wide string.
              * @return O endereço IPv4 como uma wide string.
              */

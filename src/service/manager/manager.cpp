@@ -244,24 +244,6 @@ void ss::manager::computersManager::GetHostResponse()
     while((*(uint8_t*)this->saIPCControl) != END);
 }
 
-void ss::manager::computersManager::SetHostResponse()
-{
-    *(uint8_t*)this->saIPCControl = WAIT;
-
-    while((*(uint8_t*)this->saIPCControl) != END);
-
-    computer pcd = ReadFromSA();
-
-    this->hostComputer = pcd;
-
-    *(bool*)this->saIsHostSeted = true;
-
-    this->UpdateLastUpdate();
-
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Host foi definido"); //apenas para validacoes
-
-}
-
 void manager::computersManager::Insert(computer computer)
 {
     sem_wait(this->sem);
@@ -304,26 +286,31 @@ void manager::computersManager::HandleRequest()
     {
     case INSERT:
 
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Inserindo computador");
         this->InsertResponse();
         break;
 
     case UPDATE:
 
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Atualizando computador");
         this->UpdateResponse();
         break;
         
     case GET:
 
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Pegar lista computadores");
         this->GetResponse();
         break;
 
     case GETHOST:
 
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Pegar computador host");
         this->GetHostResponse();
         break;
 
     case SETHOST:
 
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Definir computador host");
         this->SetHostResponse();
         break;
 
@@ -390,19 +377,44 @@ computer ss::manager::computersManager::GetHost() const
 
 void ss::manager::computersManager::SetHost(computer computer)
 {
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "BLoqueio semaforo"); //apenas para validacoes
     sem_wait(this->sem);
-
+    
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Aguardando STATUS READY. Status atual: " + std::to_string(*(uint8_t*)this->saIPCControl)); //apenas para validacoes
     while((*(uint8_t*)this->saIPCControl) != READY);
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Definindo STATUS SETHOST"); //apenas para validacoes
     *(uint8_t*)this->saIPCControl = SETHOST;
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Aguardando STATUS WAIT"); //apenas para validacoes
     while((*(uint8_t*)this->saIPCControl) != WAIT);
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Escrevendo na memória compartilhada"); //apenas para validacoes
     WriteOnSA(computer);
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Definindo STATUS END"); //apenas para validacoes
     *(uint8_t*)this->saIPCControl = END;
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Liberando semaforo"); //apenas para validacoes
     sem_post(this->sem);
+}
+
+
+void ss::manager::computersManager::SetHostResponse()
+{
+    *(uint8_t*)this->saIPCControl = WAIT;
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+
+    computer pcd = ReadFromSA();
+
+    this->hostComputer = pcd;
+
+    *(bool*)this->saIsHostSeted = true;
+
+    this->UpdateLastUpdate();
+
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Host foi definido"); //apenas para validacoes
 }
 
 bool ss::manager::computersManager::IsHostSeted() const
