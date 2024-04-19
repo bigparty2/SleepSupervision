@@ -348,10 +348,10 @@ void interface::interfaceManager::OutputManager()
         if(this->res->HasChange() or (currentChange != this->lastChange) or this->inputRedraw)
         {
             //Verifica se houve mudança na lista de computadores
-            if(currentChange != this->lastChange and this->IsManager)
+            if(currentChange != this->lastChange)
             {
                 this->machines = this->machinesManager->Get();
-                this->lastChange = this->machinesManager->LastUpdate();
+                this->lastChange = currentChange;
             }
             
             //Reseta controle de renderização
@@ -409,6 +409,7 @@ void interface::interfaceManager::Draw()
     {
         if(this->machinesManager->IsHostSeted())
         {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__, "Desenho com info do host.");
             auto host = this->machinesManager->GetHost();
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
@@ -419,6 +420,7 @@ void interface::interfaceManager::Draw()
         }
         else
         {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__, "Desenho sem info do host.");
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
 
