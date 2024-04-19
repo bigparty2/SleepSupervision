@@ -57,7 +57,7 @@ void monitor::MonitorSubservice::clientRun()
         {
             if(packet.GetPacket().message == network::packet::ISAWAKE)
             {
-                logger::GetInstance().Log(__PRETTY_FUNCTION__, "MonitorSubservice[cliente]: Pacote do tipo ISAWAKE recebido");
+                // logger::GetInstance().Log(__PRETTY_FUNCTION__, "MonitorSubservice[cliente]: Pacote do tipo ISAWAKE recebido");
 
                 auto returnPacket = network::packet(this->computersManager->thisComputer, network::packet::IMAWAKE, port, packet.GetPacket().seqNum + 1);
 
@@ -65,7 +65,7 @@ void monitor::MonitorSubservice::clientRun()
             }
         }
     
-        ss::thread::Sleep(500);
+        ss::thread::Sleep(1000);
     }
 }
 

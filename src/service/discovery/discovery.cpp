@@ -152,11 +152,11 @@ void discovery::DiscoverySubservice::serverRun()
                 network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
                 //Envio de pacote de resposta
-                // socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
-                socket.Send(response, DISCOVERY_PORT_CLIENT_INIT, packet.GetPacket().ipv4Origin);
+                socket.Send(response, packet.GetPacket().portOrigin, INADDR_ANY);
+                // socket.Send(response, DISCOVERY_PORT_CLIENT_INIT, packet.GetPacket().ipv4Origin);
                 // socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
 
-                ss::thread::Sleep(125);
+                // ss::thread::Sleep(125);
                 
                 break;
             }
