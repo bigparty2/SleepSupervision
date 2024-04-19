@@ -379,6 +379,8 @@ void interface::interfaceManager::OutputManager()
 
 void interface::interfaceManager::Draw()
 {
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Inicio.");
+
     //Captura dados da resolução atual do terminal
     auto colunasX = this->res->Get().x;
     auto linhasY = this->res->Get().y;
@@ -471,6 +473,8 @@ void interface::interfaceManager::Draw()
 
     //Libera buffer de saída
     std::fflush(stdout);
+
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Fim.");
 }
 
 void interface::interfaceManager::PrintFrame()
