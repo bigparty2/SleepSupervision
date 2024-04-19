@@ -153,7 +153,8 @@ void discovery::DiscoverySubservice::serverRun()
 
                 //Envio de pacote de resposta
                 // socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
-                socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
+                socket.Send(response, DISCOVERY_PORT_CLIENT_INIT, packet.GetPacket().ipv4Origin);
+                // socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
 
                 ss::thread::Sleep(125);
                 
