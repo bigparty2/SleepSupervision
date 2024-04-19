@@ -129,19 +129,19 @@ int main (int argc, char** argv)
     }
     else
     {
-        if(isManager)
+        // if(isManager)
         {
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando loop de tratamento de requisições ao maanger");
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando loop de tratamento de requisições ao manager");
 
             while(waitpid(pidInterface, NULL, WNOHANG) == 0)
             {
                 cm.HandleRequest();
             }
         }
-        else
+        // else
         {
             //trava a execução WUNTRACED
-            waitpid(pidInterface, NULL, WUNTRACED); 
+            // waitpid(pidInterface, NULL, WUNTRACED); 
         }
     }
 
