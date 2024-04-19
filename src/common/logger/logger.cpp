@@ -24,11 +24,17 @@ logger::logger(std::string fileName)
     {
         logFile.open(fileName, std::ios::app);    
     }
+
+    // Inicializa semaforo
+    sem_unlink(SEM_NAME);
+    sem = sem_open(SEM_NAME, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR, 1);
 }
 
 logger::~logger()
 {
     logFile.flush();
+    sem_close(sem);
+    sem_unlink(SEM_NAME);
 }
 
 void logger::write(std::string typeStr, std::string origin, std::string message)
@@ -37,9 +43,12 @@ void logger::write(std::string typeStr, std::string origin, std::string message)
     std::replace(message.begin(), message.end(), '\t', ' ');
     std::replace(message.begin(), message.end(), '\n', ' ');
 
-    std::lock_guard<std::mutex> lock(writeMtx);
+    // std::lock_guard<std::mutex> lock(writeMtx);
+    sem_wait(this->sem);
 
     logFile << GetDate() << "\t" << typeStr << "\t" << origin << "\t" << message << std::endl;
+
+    sem_post(this->sem);
 }
 
 std::string logger::GetDate()

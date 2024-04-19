@@ -1,16 +1,18 @@
-// TODO: Adaptar classe para trabalhar com semaforos para que seja process safe
-
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
 #include <string>
-#include <mutex>
+// #include <mutex>
 #include <fstream>
 #include <filesystem>
 #include <sstream>
 #include <chrono>
 #include <iomanip>
 #include <algorithm>
+#include <semaphore.h>
+#include <fcntl.h>
+
+
 
 namespace ss
 {
@@ -31,11 +33,21 @@ namespace ss
          */
         logger(std::string fileName = "sleepsupervison.log");
 
+        /**
+         * @brief Destrutor da classe logger.
+         */
+        ~logger();
+
         // Instancia do arquivo de log
         std::ofstream logFile;
 
         // Mutex para garantir que apenas há uma escrita em arquivo por vez
-        std::mutex writeMtx;
+        // std::mutex writeMtx;
+
+        //Semáforo para controle de acesso à região critica
+        sem_t* sem = nullptr;
+        static constexpr char* SEM_NAME = "/SS_LOGGER_SEM";
+
 
         /**
          * @brief Função para escrever no arquivo de log.
@@ -62,7 +74,7 @@ namespace ss
         /**
          * @brief Destrutor da classe logger.
          */
-        ~logger();
+        // ~logger();
 
         /**
          * @brief Registra uma atividade no arquivo de log.
