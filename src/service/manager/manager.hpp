@@ -67,7 +67,7 @@ namespace ss
             computer thisComputer;
 
             //Retorna o computador host
-            computer GetHost() const;
+            computer GetHost();
 
             //Define o computador host
             void SetHost(computer computer);
@@ -84,7 +84,7 @@ namespace ss
             //Obs.: Como os dados do computador host são adquiridos após a separação dos processos
             //este deve ser atribuido por memoria compartilhada para que o processo que gerencia a
             //lista de computadores possa definir o host e fornece-lo para os demais processos.
-            computer hostComputer;
+            computer* hostComputer;
 
             //Responde a uma chamada da função Get() para comunicação entre processos
             void GetResponse();

@@ -26,12 +26,13 @@ manager::computersManager::computersManager(bool isHost)
     //atribuição do host caso seja host
     if(isHost)
     {
-        this->hostComputer = this->thisComputer;
+        this->hostComputer = new computer(this->thisComputer);
         *(bool*)this->saIsHostSeted = true;
         this->isHost = true;    
     }
     else
     {
+        this->hostComputer = nullptr;
         this->isHost = false;
         *(bool*)this->saIsHostSeted = false;
     }
@@ -343,30 +344,31 @@ void manager::computersManager::__Insert(computer computer)
     this->_data.push_back(computer);
 }
 
-computer ss::manager::computersManager::GetHost() const
+computer ss::manager::computersManager::GetHost()
 {
-    computer host;
+    if(hostComputer == nullptr)
+    {
+        sem_wait(this->sem);
 
-    sem_wait(this->sem);
+        while((*(uint8_t*)this->saIPCControl) != READY);
 
-    while((*(uint8_t*)this->saIPCControl) != READY);
+        *(uint8_t*)this->saIPCControl = GETHOST;
 
-    *(uint8_t*)this->saIPCControl = GETHOST;
+        while((*(uint8_t*)this->saIPCControl) != WAIT);
 
-    while((*(uint8_t*)this->saIPCControl) != WAIT);
+        this->hostComputer = new computer(this->thisComputer);
 
-    host = ReadFromSA();
+        *(uint8_t*)this->saIPCControl = END;
 
-    *(uint8_t*)this->saIPCControl = END;
+        sem_post(this->sem);
+    }
 
-    sem_post(this->sem);
-
-    return host;
+    return *this->hostComputer;
 }
 
 void ss::manager::computersManager::GetHostResponse()
 {
-    this->WriteOnSA(this->hostComputer);
+    this->WriteOnSA(*this->hostComputer);
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
@@ -399,7 +401,7 @@ void ss::manager::computersManager::SetHostResponse()
 
     computer pcd = ReadFromSA();
 
-    this->hostComputer = pcd;
+    this->hostComputer = new computer(pcd);
 
     *(bool*)this->saIsHostSeted = true;
 
