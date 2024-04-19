@@ -366,7 +366,7 @@ computer ss::manager::computersManager::GetHost() const
 
 void ss::manager::computersManager::GetHostResponse()
 {
-    this->WriteOnSA(this->thisComputer);
+    this->WriteOnSA(this->hostComputer);
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
