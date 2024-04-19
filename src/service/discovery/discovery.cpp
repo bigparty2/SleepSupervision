@@ -6,7 +6,7 @@ discovery::DiscoverySubservice::DiscoverySubservice(manager::computersManager &c
 {
     this->computersManager = &computersManager;
 
-    this->TIMEOUT = {.tv_sec = 1 };
+    this->TIMEOUT = {.tv_sec = 5 };
 }
 
 discovery::DiscoverySubservice::~DiscoverySubservice()
@@ -107,7 +107,6 @@ void discovery::DiscoverySubservice::clientRun()
         logger::GetInstance().Error(__PRETTY_FUNCTION__ ,e.what());
     }
     
-
     //log
     logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Finalizando descoberta[Client].");
 
@@ -152,7 +151,7 @@ void discovery::DiscoverySubservice::serverRun()
                 network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
                 //Envio de pacote de resposta
-                socket.Send(response, packet.GetPacket().portOrigin, INADDR_ANY);
+                socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
                 // socket.Send(response, DISCOVERY_PORT_CLIENT_INIT, packet.GetPacket().ipv4Origin);
                 // socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
 
