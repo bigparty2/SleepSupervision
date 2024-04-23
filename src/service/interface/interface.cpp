@@ -150,7 +150,7 @@ void interface::interfaceManager::InputManager()
             case (int)'Q':
             case (int)'q':
                 // this->machinesManager->Remove(localComputer.GetMAC());
-                this->machinesManager->Remove(this->machinesManager->thisComputer.GetMAC());
+                this->machinesManager->Remove(this->machinesManager->thisComputer);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
 
