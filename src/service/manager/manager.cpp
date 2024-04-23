@@ -258,7 +258,10 @@ void ss::manager::computersManager::RemoveResponse()
     auto index = manager::computersManager::IndexOf(pcd.GetIPV4());
 
     if(index == manager::computersManager::npos)
-        return;
+    {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante não encontrado para remoção");
+        return;    
+    }
 
     this->_data.erase(this->_data.begin() + index);
 
@@ -286,6 +289,8 @@ void ss::manager::computersManager::SendExitMessage(computer computer)
 
     while(!imLeft)
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Enviando mensagem de saída");
+    
         socket.Send(packet, DISCOVERY_PORT_SERVER, host.GetIPV4().Get());
 
         auto response = socket.receivePacket();
@@ -294,8 +299,14 @@ void ss::manager::computersManager::SendExitMessage(computer computer)
         {
             if(response.GetPacket().message == network::packet::OK and response.GetPacket().seqNum == sequence + 1)
             {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Mensagem de saída respondida");
+
                 imLeft = true;
             }
+        }
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Mensagem de saída não respondida");
         }
     }
 }
