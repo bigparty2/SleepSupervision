@@ -20,6 +20,7 @@
 #include "../../common/computer/computer.hpp"
 #include "../../common/MAC/mac.hpp"
 #include "../../common/IPV4/ipv4.hpp"
+#include "../../common/socket/socket.hpp"
 
 namespace ss
 {
@@ -47,9 +48,10 @@ namespace ss
             void Update(computer computer);
 
             //Remove um computador da lista
-            bool Remove(network::MAC macAddr);
-            bool Remove(network::IPV4 ipv4);
-            bool Remove(std::string hostname);
+            void Remove(computer computer);
+            // bool Remove(network::MAC macAddr);
+            // bool Remove(network::IPV4 ipv4);
+            // bool Remove(std::string hostname);
 
             //Retorna a lista de computadores
             computers Get() const;
@@ -95,8 +97,11 @@ namespace ss
             //
             void UpdateResponse();
 
-            //
+            //Responde a chamada de remoção de um computador (Executado apenas pelo computador host)
             void RemoveResponse();
+
+            /// @brief Envia para o discovery do computador host uma mensagem de saída do sistema
+            void SendExitMessage(computer computer);
 
             /// @brief Responde a chamada de pegar os dados do computador host
             void GetHostResponse();
@@ -114,6 +119,7 @@ namespace ss
             void WriteOnSA(computer pcd);
 
             //Procura um pc na lista de pcs
+            uint64_t IndexOf(computer computer);
             uint64_t IndexOf(std::string hostname);
             uint64_t IndexOf(network::IPV4 ipv4);
             uint64_t IndexOf(network::MAC macAddr);
@@ -162,6 +168,10 @@ namespace ss
             static constexpr int ISSETED = 13;  //Verificar se host está definido
             static constexpr int YES     = 14;  //Indica que host foi definido
             static constexpr int NO      = 15;  //Indica que host não foi definido
+
+            static const uint16_t DISCOVERY_PORT_SERVER = 45001;
+            static const uint16_t MANAGER_PORT_CLIENT_INIT = 45105;
+            static const uint16_t MANAGER_PORT_CLIENT_END = 45205;
         };      
     }       
 }

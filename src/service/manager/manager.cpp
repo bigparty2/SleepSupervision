@@ -152,52 +152,52 @@ uint64_t manager::computersManager::IndexOf(network::MAC macAddr)
     return manager::computersManager::npos;
 }
 
-bool manager::computersManager::Remove(network::MAC macAddr)
-{
-    auto index = manager::computersManager::IndexOf(macAddr);
+// bool manager::computersManager::Remove(network::MAC macAddr)
+// {
+//     auto index = manager::computersManager::IndexOf(macAddr);
 
-    if(index == manager::computersManager::npos)
-        return false;
+//     if(index == manager::computersManager::npos)
+//         return false;
 
-    manager::computersManager::RemoveByIndex(index);
+//     manager::computersManager::RemoveByIndex(index);
 
-    manager::computersManager::UpdateLastUpdate();
+//     manager::computersManager::UpdateLastUpdate();
 
-    return true;
-}
+//     return true;
+// }
 
-bool manager::computersManager::Remove(network::IPV4 ipv4)
-{
-    auto index = manager::computersManager::IndexOf(ipv4);
+// bool manager::computersManager::Remove(network::IPV4 ipv4)
+// {
+//     auto index = manager::computersManager::IndexOf(ipv4);
 
-    if(index == manager::computersManager::npos)
-        return false;
+//     if(index == manager::computersManager::npos)
+//         return false;
 
-    manager::computersManager::RemoveByIndex(index);
+//     manager::computersManager::RemoveByIndex(index);
 
-    manager::computersManager::UpdateLastUpdate();
+//     manager::computersManager::UpdateLastUpdate();
 
-    return true;
-}
+//     return true;
+// }
 
-bool manager::computersManager::Remove(std::string hostname)
-{
-    auto index = manager::computersManager::IndexOf(hostname);
+// bool manager::computersManager::Remove(std::string hostname)
+// {
+//     auto index = manager::computersManager::IndexOf(hostname);
 
-    if(index == manager::computersManager::npos)
-        return false;
+//     if(index == manager::computersManager::npos)
+//         return false;
 
-    manager::computersManager::RemoveByIndex(index);
+//     manager::computersManager::RemoveByIndex(index);
 
-    manager::computersManager::UpdateLastUpdate();
+//     manager::computersManager::UpdateLastUpdate();
 
-    return true;
-}
+//     return true;
+// }
 
-void manager::computersManager::RemoveByIndex(uint64_t index)
-{
-    this->_data.erase(this->_data.begin() + index);
-}
+// void manager::computersManager::RemoveByIndex(uint64_t index)
+// {
+//     this->_data.erase(this->_data.begin() + index);
+// }
 
 void manager::computersManager::Update(computer computer)
 {
@@ -214,6 +214,85 @@ void manager::computersManager::Update(computer computer)
     *(uint8_t*)this->saIPCControl = END;
 
     sem_post(this->sem);
+}
+
+void ss::manager::computersManager::Remove(computer computer)
+{
+    //Se for host, remove o computador informado
+    if(this->isHost)
+    {
+        sem_wait(this->sem);
+
+        while((*(uint8_t*)this->saIPCControl) != READY);
+
+        *(uint8_t*)this->saIPCControl = REMOVE;
+
+        while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+        WriteOnSA(computer);
+
+        *(uint8_t*)this->saIPCControl = END;
+
+        sem_post(this->sem);
+    }
+    //Se não for host, envia a solicitação para o host para remover o computador informado
+    else
+    {
+        this->SendExitMessage(computer);
+    }
+}
+
+void ss::manager::computersManager::RemoveResponse()
+{
+    *(uint8_t*)this->saIPCControl = WAIT;
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+
+    computer pcd = ReadFromSA();
+
+    auto index = manager::computersManager::IndexOf(pcd.GetIPV4());
+
+    if(index == manager::computersManager::npos)
+        return;
+
+    this->_data.erase(this->_data.begin() + index);
+
+    this->UpdateLastUpdate();
+}
+
+void ss::manager::computersManager::SendExitMessage(computer computer)
+{
+    auto socket = network::Socket(IPPROTO_UDP);
+    
+    timeval timeout = {.tv_sec = 5 };
+    socket.SetConfig(SO_RCVTIMEO, timeout); //Timeout de recebimento
+
+    uint16_t sequence = 0;
+
+    //TODO: Criar loop para bind em uma porta mesmo se todas estiverem ocupadas, neste caso aguardar liberar uma porta
+    uint16_t port = MANAGER_PORT_CLIENT_INIT;
+    socket.Bind(port, MANAGER_PORT_CLIENT_END);
+
+    network::packet packet(computer, network::packet::EXIT, port, sequence);
+
+    auto host = this->GetHost();
+
+    auto imLeft = false;
+
+    while(!imLeft)
+    {
+        socket.Send(packet, DISCOVERY_PORT_SERVER, host.GetIPV4().Get());
+
+        auto response = socket.receivePacket();
+
+        if(response.IsDataInicialized())
+        {
+            if(response.GetPacket().message == network::packet::OK and response.GetPacket().seqNum == sequence + 1)
+            {
+                imLeft = true;
+            }
+        }
+    }
 }
 
 void manager::computersManager::UpdateResponse()
@@ -233,6 +312,8 @@ void manager::computersManager::UpdateResponse()
 
     this->UpdateLastUpdate();
 }
+
+
 
 void manager::computersManager::Insert(computer computer)
 {
@@ -302,6 +383,12 @@ void manager::computersManager::HandleRequest()
 
         logger::GetInstance().Log(__PRETTY_FUNCTION__, "Definir computador host");
         this->SetHostResponse();
+        break;
+
+    case REMOVE:
+
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Removendo computador");
+        this->RemoveResponse();
         break;
 
     default:

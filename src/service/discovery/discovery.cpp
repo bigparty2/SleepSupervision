@@ -41,8 +41,8 @@ void discovery::DiscoverySubservice::clientRun()
     //TODO: Criar loop para bind em uma porta mesmo se todas estiverem ocupadas
     //Bind do socket em uma porta de descoberta
     uint16_t port = DISCOVERY_PORT_CLIENT_INIT;
-    // socket.Bind(port, DISCOVERY_PORT_CLIENT_END);
-    socket.Bind(port);
+    socket.Bind(port, DISCOVERY_PORT_CLIENT_END);
+    // socket.Bind(port);
 
     //Variavel de controle de sequencia de mensagens
     uint16_t sequence = 0;
@@ -57,8 +57,6 @@ void discovery::DiscoverySubservice::clientRun()
     while(discovery != true)
     // while(true)
     {
-        logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Procurando Host.");
-
         //Envio de pacote de descoberta
         socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
 
@@ -67,26 +65,17 @@ void discovery::DiscoverySubservice::clientRun()
 
         if(response.IsDataInicialized())
         {
-            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Retorno do Host encontrado. Msg: " + std::to_string(response.GetPacket().message) + " Seq: " + std::to_string(response.GetPacket().seqNum) + " Port: " + std::to_string(response.GetPacket().portOrigin) + " IPV4: " + ss::network::IPV4::ToString(response.GetPacket().ipv4Origin) + " MAC: " + ss::network::MAC::ToString(response.GetPacket().macOrigin) + " Nome: " + (char*)response.GetPacket().nameOrigin);
-
             //Verifica se o pacote recebido é uma resposta
             if(response.GetPacket().message == network::packet::OK)
             {
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"O retorno era OK");
-
                 //Computador host
                 auto host = computer((char*)response.GetPacket().nameOrigin, 
                                     network::MAC(response.GetPacket().macOrigin), 
                                     network::IPV4(response.GetPacket().ipv4Origin), 
-                                    computer::computerStatus::awake);
-
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"computer iniciado com dados do host");
-            
+                                    computer::computerStatus::awake);            
 
                 //Definição do computador host
                 this->computersManager->SetHost(host);
-
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"HostDefinido no computador manager.");
 
                 //log
                 logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
@@ -94,25 +83,14 @@ void discovery::DiscoverySubservice::clientRun()
                 //Computador adicionado no sistema
                 discovery = true;
             }
-            else
-            {
-                //log
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host não encontrado.");
-            }
         }        
     }
-    
-    //log
-    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Finalizando descoberta[Client].");
-
 }
 
 void discovery::DiscoverySubservice::serverRun()
 {
     //Criacao de socket UDP
     auto socket = network::Socket(IPPROTO_UDP);
-
-    //logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket criado");
 
     //Configuracao do socket
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); //Timeout de recebimento
@@ -132,28 +110,43 @@ void discovery::DiscoverySubservice::serverRun()
         {
             switch (packet.GetPacket().message)
             {
-            case network::packet::REGITRY:
-            {
-                //Adiciona computador no sistema
-                this->computersManager->Insert(
-                    computer(std::string((char*)packet.GetPacket().nameOrigin), 
-                            network::MAC(packet.GetPacket().macOrigin), 
-                            network::IPV4(packet.GetPacket().ipv4Origin), 
-                            computer::computer::awake)
-                    );
+                case network::packet::REGITRY:
+                {
+                    //Adiciona computador no sistema
+                    this->computersManager->Insert(
+                        computer(std::string((char*)packet.GetPacket().nameOrigin), 
+                                network::MAC(packet.GetPacket().macOrigin), 
+                                network::IPV4(packet.GetPacket().ipv4Origin), 
+                                computer::computer::awake)
+                        );
 
-                //Pacote de resposta
-                network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
+                    //Pacote de resposta
+                    network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
-                //Envio de pacote de resposta
-                socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
-                // socket.Send(response, DISCOVERY_PORT_CLIENT_INIT, packet.GetPacket().ipv4Origin);
-                // socket.Send(response, packet.GetPacket().portOrigin, "192.168.0.255");
+                    //Envio de pacote de resposta
+                    socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
+                    
+                    break;
+                }
 
-                // ss::thread::Sleep(125);
-                
-                break;
-            }
+                case network::packet::EXIT:
+                {
+                    //Remove computador do sistema
+                    this->computersManager->Remove(
+                        computer(std::string((char*)packet.GetPacket().nameOrigin), 
+                                network::MAC(packet.GetPacket().macOrigin), 
+                                network::IPV4(packet.GetPacket().ipv4Origin), 
+                                computer::computer::awake)
+                        );
+
+                    //Pacote de resposta
+                    network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
+
+                    //Envio de pacote de resposta
+                    socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
+
+                    break;
+                }
             
             default:
                 break;
