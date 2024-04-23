@@ -90,3 +90,11 @@ void logger::Error(std::string origin, std::string message)
 {
     write("Error", origin, message);
 }
+
+void ss::logger::Debug(std::string origin, std::string message)
+{
+    #ifdef DEBUG
+        if(DEBUG == 1)
+            write("Debug", origin, message);
+    #endif
+}

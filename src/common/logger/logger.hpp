@@ -96,6 +96,13 @@ namespace ss
          * @param message A mensagem do erro.
          */
         void Error(std::string origin, std::string message);
+
+        /**
+         * @brief Registra uma mensagem de depuração no arquivo de log.
+         * @param origin A origem da mensagem de depuração.
+         * @param message A mensagem de depuração.
+         */
+        void Debug(std::string origin, std::string message);
     }; 
 }
 

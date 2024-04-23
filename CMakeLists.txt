@@ -24,3 +24,6 @@ add_executable(SleepSupervision src/main.cpp)
 
 # Vincule a biblioteca estática ao executável do projeto
 target_link_libraries(SleepSupervision common_and_service)
+
+#Variaveis globais pré-processador
+add_definitions(-DDEBUG=1)
