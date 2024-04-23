@@ -60,6 +60,7 @@ manager::computersManager::~computersManager()
 {
     sem_close(sem);
     sem_unlink(SEM_NAME);
+    delete this->hostComputer;
 }
 
 uint64_t manager::computersManager::LastUpdate() const
