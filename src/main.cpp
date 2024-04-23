@@ -28,8 +28,7 @@
 
 int main (int argc, char** argv)
 {
-    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepSupervision iniciado");
-
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando ...");
 
     //Define o nome do processo
     prctl(PR_SET_NAME, "SS");
@@ -38,6 +37,7 @@ int main (int argc, char** argv)
     if(argc != 2)
     {
         printf("Quantidade de argumentos invalidos!\n");
+        ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Quantidade de argumentos invalidos!");
         return EXIT_FAILURE;
     }
 
@@ -51,16 +51,17 @@ int main (int argc, char** argv)
         if(argStr == "P" or argStr == "p")
         {
             isManager = false;
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "iniciando como participante");
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Participante");
         }
         else if(argStr == "M" or argStr == "m")
         {
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "iniciando como servidor");
+            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Gerenciador");
             isManager = true;
         }
         else
         {
             // TODO: Incluir no LOG
+            ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Argumento inválido!");
             printf("Argumento \"%s\" invalido!\n", argStr.c_str());
             return EXIT_FAILURE;
         }
@@ -129,26 +130,18 @@ int main (int argc, char** argv)
     }
     else
     {
-        // if(isManager)
-        {
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando loop de tratamento de requisições ao manager");
+        ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando loop de tratamento de requisições ao manager");
 
-            while(waitpid(pidInterface, NULL, WNOHANG) == 0)
-            {
-                cm.HandleRequest();
-            }
-        }
-        // else
+        while(waitpid(pidInterface, NULL, WNOHANG) == 0)
         {
-            //trava a execução WUNTRACED
-            // waitpid(pidInterface, NULL, WUNTRACED); 
+            cm.HandleRequest();
         }
     }
 
     kill(pidDiscovery, 9);
     kill(pidMonitor, 9);
 
-    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "SleepSupervision encerrado.");
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Encerrando ...");
 
     return (0x0);
 }

@@ -149,7 +149,6 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
-                // this->machinesManager->Remove(localComputer.GetMAC());
                 this->machinesManager->Remove(this->machinesManager->thisComputer);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
@@ -379,7 +378,7 @@ void interface::interfaceManager::OutputManager()
 
 void interface::interfaceManager::Draw()
 {
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Inicio.");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciando desenho da tela");
 
     //Captura dados da resolução atual do terminal
     auto colunasX = this->res->Get().x;
@@ -411,7 +410,8 @@ void interface::interfaceManager::Draw()
     {
         if(this->machinesManager->IsHostSeted())
         {
-            logger::GetInstance().Log(__PRETTY_FUNCTION__, "Desenho com info do host.");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Desenha info com host informado");
+
             auto host = this->machinesManager->GetHost();
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
@@ -422,7 +422,8 @@ void interface::interfaceManager::Draw()
         }
         else
         {
-            logger::GetInstance().Log(__PRETTY_FUNCTION__, "Desenho sem info do host.");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Desenho info sem host informado");
+
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
 
@@ -474,7 +475,7 @@ void interface::interfaceManager::Draw()
     //Libera buffer de saída
     std::fflush(stdout);
 
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Fim.");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Finalizando desenho de tela");
 }
 
 void interface::interfaceManager::PrintFrame()

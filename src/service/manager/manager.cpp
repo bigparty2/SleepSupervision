@@ -222,6 +222,8 @@ void ss::manager::computersManager::Remove(computer computer)
     //Se for host, remove o computador informado
     if(this->isHost)
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Remoção de participante como host");
+
         sem_wait(this->sem);
 
         while((*(uint8_t*)this->saIPCControl) != READY);
@@ -239,6 +241,8 @@ void ss::manager::computersManager::Remove(computer computer)
     //Se não for host, envia a solicitação para o host para remover o computador informado
     else
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Remoção de participante como participante");
+
         this->SendExitMessage(computer);
     }
 }
@@ -313,8 +317,6 @@ void manager::computersManager::UpdateResponse()
 
     this->UpdateLastUpdate();
 }
-
-
 
 void manager::computersManager::Insert(computer computer)
 {
