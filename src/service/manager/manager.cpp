@@ -303,6 +303,10 @@ void ss::manager::computersManager::SendExitMessage(computer computer)
 
                 imLeft = true;
             }
+            else
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Mensagem de saída não é esperada");
+            }
         }
         else
         {
@@ -371,37 +375,37 @@ void manager::computersManager::HandleRequest()
     {
     case INSERT:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Inserindo computador");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Inserindo computador");
         this->InsertResponse();
         break;
 
     case UPDATE:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Atualizando computador");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Atualizando computador");
         this->UpdateResponse();
         break;
         
     case GET:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Pegar lista computadores");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar lista computadores");
         this->GetResponse();
         break;
 
     case GETHOST:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Pegar computador host");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar computador host");
         this->GetHostResponse();
         break;
 
     case SETHOST:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Definir computador host");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Definir computador host");
         this->SetHostResponse();
         break;
 
     case REMOVE:
 
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Removendo computador");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Removendo computador");
         this->RemoveResponse();
         break;
 
@@ -476,7 +480,6 @@ void ss::manager::computersManager::GetHostResponse()
     while((*(uint8_t*)this->saIPCControl) != END);
 }
 
-
 void ss::manager::computersManager::SetHost(computer computer)
 {
     sem_wait(this->sem);
@@ -503,6 +506,8 @@ void ss::manager::computersManager::SetHostResponse()
     computer pcd = ReadFromSA();
 
     this->hostComputer = new computer(pcd);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host definido como: " + this->hostComputer->GetName() + "|" + this->hostComputer->GetIPV4().ToString());
 
     *(bool*)this->saIsHostSeted = true;
 

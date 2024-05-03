@@ -72,11 +72,11 @@ void discovery::DiscoverySubservice::clientRun()
                                     network::IPV4(response.GetPacket().ipv4Origin), 
                                     computer::computerStatus::awake);            
 
-                //Definição do computador host
-                this->computersManager->SetHost(host);
-
                 //log
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
+
+                //Definição do computador host
+                this->computersManager->SetHost(host);
             
                 //Computador adicionado no sistema
                 discovery = true;
