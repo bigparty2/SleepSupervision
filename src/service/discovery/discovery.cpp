@@ -23,6 +23,8 @@ void discovery::DiscoverySubservice::Start(bool isServer)
     {
         clientRun();
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
 }
 
 void discovery::DiscoverySubservice::Stop()
@@ -83,6 +85,8 @@ void discovery::DiscoverySubservice::clientRun()
             }
         }        
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
 }
 
 void discovery::DiscoverySubservice::serverRun()
