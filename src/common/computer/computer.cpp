@@ -50,7 +50,7 @@ void computer::GetComputerInfo()
     this->macAddr.GetMACAddrr("eth_|enp_s_");
     this->status = computer::computerStatus::awake;
 
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, this->name + "|" + this->ipv4.ToString() + "|" + this->macAddr.ToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, this->name + "|" + this->ipv4.ToString() + "|" + this->macAddr.ToString());
 }
 
 std::string computer::GetName() const
