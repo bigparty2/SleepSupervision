@@ -18,7 +18,7 @@ logger::logger(std::string fileName)
         // Cria e insere o cabeçalho
         logFile.open(fileName);
 
-        logFile << "Date\tType\tOrigin\tMessage" << std::endl;
+        logFile << "Date\tType\tProcess\tOrigin\tMessage" << std::endl;
     }
     else
     {
@@ -43,10 +43,14 @@ void logger::write(std::string typeStr, std::string origin, std::string message)
     std::replace(message.begin(), message.end(), '\t', ' ');
     std::replace(message.begin(), message.end(), '\n', ' ');
 
+    // Pega nome do processo
+    char processName[20];
+    prctl(PR_GET_NAME, processName);
+
     // std::lock_guard<std::mutex> lock(writeMtx);
     sem_wait(this->sem);
 
-    logFile << GetDate() << "\t" << typeStr << "\t" << origin << "\t" << message << std::endl;
+    logFile << GetDate() << "\t" << typeStr << "\t" << processName << "\t" << origin << "\t" << message << std::endl;
 
     sem_post(this->sem);
 }
