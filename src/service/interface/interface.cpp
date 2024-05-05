@@ -149,7 +149,7 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
-                if(!this->IsManager)
+                if(!this->IsManager and this->machinesManager->IsHostSeted())
                     this->machinesManager->Remove(this->machinesManager->thisComputer);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
