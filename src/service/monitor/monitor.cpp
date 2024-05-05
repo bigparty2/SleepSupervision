@@ -35,7 +35,7 @@ void monitor::MonitorSubservice::Stop()
 void monitor::MonitorSubservice::clientRun()
 {
     //log
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, "MonitorSubservice[cliente]: Iniciado");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "MonitorSubservice[cliente]: Iniciado");
 
     // Create a UDP socket
     auto socket = network::Socket(IPPROTO_UDP);

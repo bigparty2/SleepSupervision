@@ -24,16 +24,14 @@ manager::computersManager::computersManager(bool isHost)
     this->thisComputer.GetComputerInfo();
 
     //atribuição do host caso seja host
-    if(isHost)
+    if(this->isHost)
     {
         this->hostComputer = new computer(this->thisComputer);
-        *(bool*)this->saIsHostSeted = true;
-        this->isHost = true;    
+        *(bool*)this->saIsHostSeted = true; 
     }
     else
     {
         this->hostComputer = nullptr;
-        this->isHost = false;
         *(bool*)this->saIsHostSeted = false;
     }
 
@@ -60,7 +58,8 @@ manager::computersManager::~computersManager()
 {
     sem_close(sem);
     sem_unlink(SEM_NAME);
-    delete this->hostComputer;
+    if(this->hostComputer != nullptr)
+        delete this->hostComputer;
 }
 
 uint64_t manager::computersManager::LastUpdate() const
@@ -461,11 +460,13 @@ computer ss::manager::computersManager::GetHost()
 
         while((*(uint8_t*)this->saIPCControl) != WAIT);
 
-        this->hostComputer = new computer(this->thisComputer);
+        this->hostComputer = new computer(this->ReadFromSA());
 
         *(uint8_t*)this->saIPCControl = END;
 
         sem_post(this->sem);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host definido como: " + this->hostComputer->GetName() + "|" + this->hostComputer->GetIPV4().ToString());
     }
 
     return *this->hostComputer;
@@ -482,36 +483,64 @@ void ss::manager::computersManager::GetHostResponse()
 
 void ss::manager::computersManager::SetHost(computer computer)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Aguardando liberação semaforo");
+
     sem_wait(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status READY");
     
     while((*(uint8_t*)this->saIPCControl) != READY);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Definindo status como SETHOST");
+
     *(uint8_t*)this->saIPCControl = SETHOST;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Aguardando status WAIT");
 
     while((*(uint8_t*)this->saIPCControl) != WAIT);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Escrevendo PC na memória compartilhada");
+
     WriteOnSA(computer);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Definindo status como END");
 
     *(uint8_t*)this->saIPCControl = END;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Liberando semaforo");
+
     sem_post(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim");
 }
 
 void ss::manager::computersManager::SetHostResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Definindo status como WAIT");
+
     *(uint8_t*)this->saIPCControl = WAIT;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status END");
 
     while((*(uint8_t*)this->saIPCControl) != END);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Lendo PC da memória compartilhada");
+
     computer pcd = ReadFromSA();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Definindo PC host");
 
     this->hostComputer = new computer(pcd);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host definido como: " + this->hostComputer->GetName() + "|" + this->hostComputer->GetIPV4().ToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Definindo variavel de controle de definição do host como true");
 
     *(bool*)this->saIsHostSeted = true;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Atualizando contagem de atualização do Manager");
+
     this->UpdateLastUpdate();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim");
 }
 
 bool ss::manager::computersManager::IsHostSeted() const

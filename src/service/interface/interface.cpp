@@ -149,7 +149,7 @@ void interface::interfaceManager::InputManager()
             //Sair do programa
             case (int)'Q':
             case (int)'q':
-                if(!this->IsManager)
+                if(!this->IsManager and this->machinesManager->IsHostSeted())
                     this->machinesManager->Remove(this->machinesManager->thisComputer);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
@@ -379,7 +379,7 @@ void interface::interfaceManager::OutputManager()
 
 void interface::interfaceManager::Draw()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciando desenho da tela");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "1 Iniciando desenho da tela");
 
     //Captura dados da resolução atual do terminal
     auto colunasX = this->res->Get().x;
@@ -411,7 +411,7 @@ void interface::interfaceManager::Draw()
     {
         if(this->machinesManager->IsHostSeted())
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Desenha info com host informado");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.1 Desenha info com host informado");
 
             auto host = this->machinesManager->GetHost();
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
@@ -423,7 +423,7 @@ void interface::interfaceManager::Draw()
         }
         else
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Desenho info sem host informado");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.2 Desenho info sem host informado");
 
             this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
             std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
@@ -432,6 +432,8 @@ void interface::interfaceManager::Draw()
             this->GotoYX(this->commandInfoLinePos, 1);
             std::cout << string::ToCenter(this->noDataCommand, colunasX);
         }
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "3 Fim desenho de info");
     }
     //Verifica se há computadores a ser exibidos
     else if(this->machines.size())

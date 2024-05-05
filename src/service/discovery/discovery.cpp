@@ -23,6 +23,8 @@ void discovery::DiscoverySubservice::Start(bool isServer)
     {
         clientRun();
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
 }
 
 void discovery::DiscoverySubservice::Stop()
@@ -73,7 +75,7 @@ void discovery::DiscoverySubservice::clientRun()
                                     computer::computerStatus::awake);            
 
                 //log
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
+                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
 
                 //Definição do computador host
                 this->computersManager->SetHost(host);
@@ -83,6 +85,8 @@ void discovery::DiscoverySubservice::clientRun()
             }
         }        
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
 }
 
 void discovery::DiscoverySubservice::serverRun()
