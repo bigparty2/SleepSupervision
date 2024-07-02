@@ -20,10 +20,10 @@ add_library(common_and_service STATIC ${COMMON_SRC} ${SERVICE_SRC})
 include_directories(src)
 
 # Adicione o executável do projeto
-add_executable(SleepSupervision src/main.cpp)
+add_executable(SS src/main.cpp)
 
 # Vincule a biblioteca estática ao executável do projeto
-target_link_libraries(SleepSupervision common_and_service)
+target_link_libraries(SS common_and_service)
 
 #Variaveis globais pré-processador
 add_definitions(-DDEBUG=1)
