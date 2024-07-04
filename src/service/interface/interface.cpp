@@ -823,33 +823,42 @@ void interface::interfaceManager::DrawLogo()
 
     if(terminalRes.x >= this->logoLength + 2 && terminalRes.y >= this->logoHeight + 2)
     {
-        // //Imprime sequencialmente por linha
-        // for(int i = 0; i < this->logoHeight; i++)
-        // {
-        //     this->GotoYX(((terminalRes.y / 2) - (this->logoHeight / 2)) + i,(terminalRes.x / 2) - (this->logoLength / 2));
-
-        //     for(int y = 0; y < this->logoLength; y++)
-        //     {
-        //         std::cout << this->logo.at(i).at(y);
-        //         std::fflush(stdout);
-
-        //         thread::Sleep(2);
-        //     }
-        // }
-
-        //Imprime sequencialmente por coluna
-        for(int i = 0; i < this->logoLength; i++)
+        // Gera número aleatório com base no horário atual
+        srand(time(NULL));
+        bool random = bool(rand() % 2);
+        
+        if(random)
         {
-            for(int y = 0; y < this->logoHeight; y++)
+            // //Imprime sequencialmente por linha
+            for(int i = 0; i < this->logoHeight; i++)
             {
-                this->GotoYX((terminalRes.y / 2) - (this->logoHeight / 2) + y,(terminalRes.x / 2) - (this->logoLength / 2) + i);
+                this->GotoYX(((terminalRes.y / 2) - (this->logoHeight / 2)) + i,(terminalRes.x / 2) - (this->logoLength / 2));
 
-                std::cout << this->logo.at(y).at(i);
-                std::fflush(stdout);
+                for(int y = 0; y < this->logoLength; y++)
+                {
+                    std::cout << this->logo.at(i).at(y);
+                    std::fflush(stdout);
 
-                thread::Sleep(2);
+                    thread::Sleep(2);
+                }
+            }
+        }
+        else
+        {
+            //Imprime sequencialmente por coluna
+            for(int i = 0; i < this->logoLength; i++)
+            {
+                for(int y = 0; y < this->logoHeight; y++)
+                {
+                    this->GotoYX((terminalRes.y / 2) - (this->logoHeight / 2) + y,(terminalRes.x / 2) - (this->logoLength / 2) + i);
 
-            }        
+                    std::cout << this->logo.at(y).at(i);
+                    std::fflush(stdout);
+
+                    thread::Sleep(2);
+
+                }        
+            }
         }
 
         //Aguarda um tempo para visualização do logo
