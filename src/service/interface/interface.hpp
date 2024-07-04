@@ -280,6 +280,9 @@ namespace ss
             // Lista de teclas aceitas
             std::vector<int> keysList = {(int)'Q', (int)'q', 27, 32};
 
+            // Desenha a logo de entrada do sistema na tela
+            void DrawLogo();
+
             // Variáveis de controle e posicionamentos na interface
             const unsigned short frameTopLinePos = 5;
             unsigned short frameBottomLinePos;
@@ -320,6 +323,21 @@ namespace ss
             std::string headerElement1 = "MAC ";
             std::string headerElement2 = "IP ";
             std::string headerElement3 = "Status ";
+
+            // Linhas da logo de entrada do sistema
+            const std::vector<std::string> logo = 
+            {
+                "  _________.__                           _________                               .__       .__               ",
+                " /   _____/|  |   ____   ____ ______    /   _____/__ ________   ______________  _|__| _____|__| ____   ____  ",
+                " \\_____  \\ |  | _/ __ \\_/ __ \\\\____ \\   \\_____  \\|  |  \\____ \\_/ __ \\_  __ \\  \\/ /  |/  ___/  |/  _ \\ /    \\ ",
+                " /        \\|  |_\\  ___/\\  ___/|  |_> >  /        \\  |  /  |_> >  ___/|  | \\/\\   /|  |\\___ \\|  (  <_> )   |  \\",
+                "/_______  /|____/\\___  >\\___  >   __/  /_______  /____/|   __/ \\___  >__|    \\_/ |__/____  >__|\\____/|___|  /",
+                "        \\/           \\/     \\/|__|             \\/      |__|        \\/                    \\/               \\/ "
+            };
+
+            const unsigned char logoLength = 109;
+            const unsigned char logoHeight = 6;
+
         };
     }
 }

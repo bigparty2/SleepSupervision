@@ -95,6 +95,12 @@ void interface::interfaceManager::Init(ss::manager::computersManager &cm, bool m
     //Salva estado previo do console
     std::system("tput smcup #save previous state");
 
+    //Ocultar cursor
+    interfaceManager::HideCursor();
+
+    //Desenha logo em tela se possível
+    this->DrawLogo();
+
     //Inicializa a thread de output
     this->tout = std::thread(&interface::interfaceManager::OutputManager, this);
     
@@ -104,6 +110,9 @@ void interface::interfaceManager::Init(ss::manager::computersManager &cm, bool m
 
 void interface::interfaceManager::End()
 {
+    //Restaurar cursor
+    interfaceManager::ShowCursor();
+
     //Comando para encerramento das threads
     this->threadKeepAlive = false;
 
@@ -329,9 +338,6 @@ bool interface::interfaceManager::AcceptedKeys(int key)
 
 void interface::interfaceManager::OutputManager()
 {
-    //Ocultar cursor
-    interfaceManager::HideCursor();
-
     //Bloqueia rolagem de tela
     interfaceManager::LockScrolling();
 
@@ -366,9 +372,6 @@ void interface::interfaceManager::OutputManager()
 
         thread::Sleep(THREAD_SLEEP_TIME);
     }
-
-    //Restaurar cursor
-    interfaceManager::ShowCursor();
 
     //Restaura a rolagem de tela
     interfaceManager::UnlockScrolling();
@@ -812,4 +815,44 @@ void interface::interfaceManager::AdjustOrdering()
     }
 
     this->previousOrder = this->currentOrder;
+}
+
+void interface::interfaceManager::DrawLogo()
+{
+    auto terminalRes = this->res->Get();
+
+    if(terminalRes.x >= this->logoLength + 2 && terminalRes.y >= this->logoHeight + 2)
+    {
+        // //Imprime sequencialmente por linha
+        // for(int i = 0; i < this->logoHeight; i++)
+        // {
+        //     this->GotoYX(((terminalRes.y / 2) - (this->logoHeight / 2)) + i,(terminalRes.x / 2) - (this->logoLength / 2));
+
+        //     for(int y = 0; y < this->logoLength; y++)
+        //     {
+        //         std::cout << this->logo.at(i).at(y);
+        //         std::fflush(stdout);
+
+        //         thread::Sleep(2);
+        //     }
+        // }
+
+        //Imprime sequencialmente por coluna
+        for(int i = 0; i < this->logoLength; i++)
+        {
+            for(int y = 0; y < this->logoHeight; y++)
+            {
+                this->GotoYX((terminalRes.y / 2) - (this->logoHeight / 2) + y,(terminalRes.x / 2) - (this->logoLength / 2) + i);
+
+                std::cout << this->logo.at(y).at(i);
+                std::fflush(stdout);
+
+                thread::Sleep(2);
+
+            }        
+        }
+
+        //Aguarda um tempo para visualização do logo
+        thread::Sleep(4000);
+    }
 }
