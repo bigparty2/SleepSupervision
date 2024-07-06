@@ -27,3 +27,17 @@ target_link_libraries(SS common_and_service)
 
 #Variaveis globais pré-processador
 add_definitions(-DDEBUG=1)
+
+#Alvo personalizado para execução como participante usando 'make P'
+add_custom_target(P
+    COMMAND ./SS P
+    DEPENDS SS
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+#Alvo personalizado para execução como manager usando 'make M'
+add_custom_target(M
+    COMMAND ./SS M
+    DEPENDS SS
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
