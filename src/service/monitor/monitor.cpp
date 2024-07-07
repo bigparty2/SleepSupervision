@@ -90,7 +90,7 @@ void monitor::MonitorSubservice::serverRun()
 
             this->UpdateComputersToMonior();
         }
-        else
+        else if (this->failedMonitors.size() > 0)
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciando verificação dos computadores");
 
