@@ -60,7 +60,6 @@ int main (int argc, char** argv)
         }
         else
         {
-            // TODO: Incluir no LOG
             ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Argumento inválido!");
             printf("Argumento \"%s\" invalido!\n", argStr.c_str());
             return EXIT_FAILURE;
@@ -116,7 +115,7 @@ int main (int argc, char** argv)
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Interface");
 
-        std::cout << "Sleep Supervison" << std::endl;
+        std::cout << "Sleep Supervision" << std::endl;
 
         //Inicializa o serviço
         ss::interface::interfaceManager interfaceManager(cm, isManager);

@@ -30,9 +30,9 @@ namespace ss
 
         /**
          * @brief Construtor da classe logger.
-         * @param fileName O nome do arquivo de log. O valor padrão é "sleepsupervison.log".
+         * @param fileName O nome do arquivo de log. O valor padrão é "SleepSupervision.log".
          */
-        logger(std::string fileName = "sleepsupervison.log");
+        logger(std::string fileName = "SleepSupervision.log");
 
         /**
          * @brief Destrutor da classe logger.
