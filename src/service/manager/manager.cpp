@@ -490,6 +490,8 @@ void manager::computersManager::__Insert(computer computer)
 
 computer ss::manager::computersManager::GetHost()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção do computador host");
+
     if(hostComputer == nullptr)
     {
         sem_wait(this->sem);
@@ -509,16 +511,22 @@ computer ss::manager::computersManager::GetHost()
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Host definido como: " + this->hostComputer->GetName() + "|" + this->hostComputer->GetIPV4().ToString());
     }
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de obtenção do computador host");
+
     return *this->hostComputer;
 }
 
 void ss::manager::computersManager::GetHostResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de obtenção do computador host");
+
     this->WriteOnSA(*this->hostComputer);
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
     while((*(uint8_t*)this->saIPCControl) != END);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de obtenção do computador host");
 }
 
 void ss::manager::computersManager::SetHost(computer computer)
