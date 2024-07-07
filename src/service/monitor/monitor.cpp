@@ -132,7 +132,7 @@ void monitor::MonitorSubservice::serverRun()
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
                 }
 
-                if(computerMonitor.failCount > MAX_FAILS)
+                if(computerMonitor.Computer.GetStatus() == computer::computerStatus::awake && computerMonitor.failCount > MAX_FAILS)
                 {
                     computerMonitor.Computer.SetStatus(computer::computerStatus::sleep);
                     this->computersManager->Update(computerMonitor.Computer);
