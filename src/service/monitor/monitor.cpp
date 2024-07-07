@@ -126,7 +126,7 @@ void monitor::MonitorSubservice::serverRun()
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
                     }
                 }
-                else
+                else if (computerMonitor.Computer.GetStatus() == computer::computerStatus::awake)
                 {
                     computerMonitor.failCount++;
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
