@@ -75,6 +75,8 @@ void manager::computersManager::UpdateLastUpdate()
 
 computers manager::computersManager::Get() const
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção de lista de computadores");
+
     auto pcList = computers();
 
     sem_wait(this->sem);
@@ -100,11 +102,15 @@ computers manager::computersManager::Get() const
 
     sem_post(this->sem);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de obtenção de lista de computadores");
+
     return pcList;
 }
 
 void manager::computersManager::GetResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de obtenção de lista de computadores");
+
     for(auto &pcd : this->_data)
     {
         WriteOnSA(pcd);
@@ -117,6 +123,8 @@ void manager::computersManager::GetResponse()
     *(uint8_t*)this->saIPCControl = ENDLIST;
 
     while((*(uint8_t*)this->saIPCControl) != END);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de obtenção de lista de computadores");
 }
 
 uint64_t manager::computersManager::IndexOf(std::string hostname)
@@ -201,6 +209,8 @@ uint64_t manager::computersManager::IndexOf(network::MAC macAddr)
 
 void manager::computersManager::Update(computer computer)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de atualização de computador");
+
     sem_wait(this->sem);
 
     while((*(uint8_t*)this->saIPCControl) != READY);
@@ -214,10 +224,14 @@ void manager::computersManager::Update(computer computer)
     *(uint8_t*)this->saIPCControl = END;
 
     sem_post(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de atualização de computador");
 }
 
 void ss::manager::computersManager::Remove(computer computer)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de remoção de computador");
+
     //Se for host, remove o computador informado
     if(this->isHost)
     {
@@ -244,10 +258,14 @@ void ss::manager::computersManager::Remove(computer computer)
 
         this->SendExitMessage(computer);
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de remoção de computador");
 }
 
 void ss::manager::computersManager::RemoveResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de remoção de computador");
+
     *(uint8_t*)this->saIPCControl = WAIT;
 
     while((*(uint8_t*)this->saIPCControl) != END);
@@ -259,6 +277,8 @@ void ss::manager::computersManager::RemoveResponse()
     if(index == manager::computersManager::npos)
     {
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante não encontrado para remoção");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de remoção de computador");
+
         return;    
     }
 
@@ -266,7 +286,8 @@ void ss::manager::computersManager::RemoveResponse()
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante removido do sistema");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante removido do sistema.");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de remoção de computador");
 }
 
 void ss::manager::computersManager::SendExitMessage(computer computer)
@@ -318,6 +339,8 @@ void ss::manager::computersManager::SendExitMessage(computer computer)
 
 void manager::computersManager::UpdateResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de atualização de computador");
+
     *(uint8_t*)this->saIPCControl = WAIT;
 
     while((*(uint8_t*)this->saIPCControl) != END);
@@ -332,10 +355,14 @@ void manager::computersManager::UpdateResponse()
     this->_data.at(index) = pcd;
 
     this->UpdateLastUpdate();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de atualização de computador");
 }
 
 void manager::computersManager::Insert(computer computer)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de inserção de computador");
+
     sem_wait(this->sem);
 
     while((*(uint8_t*)this->saIPCControl) != READY);
@@ -349,10 +376,14 @@ void manager::computersManager::Insert(computer computer)
     *(uint8_t*)this->saIPCControl = END;
 
     sem_post(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de inserção de computador");
 }
 
 void manager::computersManager::InsertResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de inserção de computador");
+
     *(uint8_t*)this->saIPCControl = WAIT;
 
     while((*(uint8_t*)this->saIPCControl) != END);
@@ -371,6 +402,8 @@ void manager::computersManager::InsertResponse()
     this->UpdateLastUpdate();
 
     logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador registrado no sistema");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de inserção de computador");
+
 }
 
 void manager::computersManager::HandleRequest()

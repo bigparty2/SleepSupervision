@@ -356,6 +356,7 @@ void interface::interfaceManager::OutputManager()
             //Verifica se houve mudança na lista de computadores
             if(currentChange != this->lastChange)
             {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar lista de computadores atulizada");
                 this->machines = this->machinesManager->Get();
                 this->lastChange = currentChange;
             }

@@ -54,6 +54,8 @@ void discovery::DiscoverySubservice::clientRun()
     //Variavel de controle para descoberta
     bool discovery = false;
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Iniciando busca por um host");
+
     //Loop de descoberta
     while(discovery != true)
     {
@@ -83,6 +85,11 @@ void discovery::DiscoverySubservice::clientRun()
                 //Computador adicionado no sistema
                 discovery = true;
             }
+        }
+        else
+        {
+            //log
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Nenhum host encontrado, tentando novamente ...");
         }        
     }
 
@@ -123,6 +130,8 @@ void discovery::DiscoverySubservice::serverRun()
 
                     //Adiciona computador no sistema
                     this->computersManager->Insert(participant);
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante inserido no sistema, enviando mensagem de retorno confirmando o ingresso");
 
                     //Pacote de resposta
                     network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);

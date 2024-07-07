@@ -86,7 +86,7 @@ void monitor::MonitorSubservice::serverRun()
     {
         if(this->lastUpdate != this->computersManager->LastUpdate())
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Atualização da lista de computadores");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar lista de computadores atulizada");
 
             this->UpdateComputersToMonior();
         }
