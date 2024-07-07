@@ -127,6 +127,10 @@ namespace ss
             //Remove um elemento a partir do index
             void RemoveByIndex(uint64_t index);
 
+            //IPCControl to string
+            std::string IPCControlToString() const;
+            static std::string IPCControlToString(int control);
+
             //Armazena as informações dos computadores
             computers _data;
 

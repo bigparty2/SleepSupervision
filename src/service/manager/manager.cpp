@@ -76,6 +76,7 @@ void manager::computersManager::UpdateLastUpdate()
 computers manager::computersManager::Get() const
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção de lista de computadores");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
 
     auto pcList = computers();
 
@@ -160,56 +161,10 @@ uint64_t manager::computersManager::IndexOf(network::MAC macAddr)
     return manager::computersManager::npos;
 }
 
-// bool manager::computersManager::Remove(network::MAC macAddr)
-// {
-//     auto index = manager::computersManager::IndexOf(macAddr);
-
-//     if(index == manager::computersManager::npos)
-//         return false;
-
-//     manager::computersManager::RemoveByIndex(index);
-
-//     manager::computersManager::UpdateLastUpdate();
-
-//     return true;
-// }
-
-// bool manager::computersManager::Remove(network::IPV4 ipv4)
-// {
-//     auto index = manager::computersManager::IndexOf(ipv4);
-
-//     if(index == manager::computersManager::npos)
-//         return false;
-
-//     manager::computersManager::RemoveByIndex(index);
-
-//     manager::computersManager::UpdateLastUpdate();
-
-//     return true;
-// }
-
-// bool manager::computersManager::Remove(std::string hostname)
-// {
-//     auto index = manager::computersManager::IndexOf(hostname);
-
-//     if(index == manager::computersManager::npos)
-//         return false;
-
-//     manager::computersManager::RemoveByIndex(index);
-
-//     manager::computersManager::UpdateLastUpdate();
-
-//     return true;
-// }
-
-// void manager::computersManager::RemoveByIndex(uint64_t index)
-// {
-//     this->_data.erase(this->_data.begin() + index);
-// }
-
 void manager::computersManager::Update(computer computer)
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de atualização de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
 
     sem_wait(this->sem);
 
@@ -231,6 +186,7 @@ void manager::computersManager::Update(computer computer)
 void ss::manager::computersManager::Remove(computer computer)
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de remoção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
 
     //Se for host, remove o computador informado
     if(this->isHost)
@@ -362,6 +318,7 @@ void manager::computersManager::UpdateResponse()
 void manager::computersManager::Insert(computer computer)
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de inserção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
 
     sem_wait(this->sem);
 
@@ -491,6 +448,7 @@ void manager::computersManager::__Insert(computer computer)
 computer ss::manager::computersManager::GetHost()
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção do computador host");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
 
     if(hostComputer == nullptr)
     {
@@ -594,4 +552,64 @@ void ss::manager::computersManager::SetHostResponse()
 bool ss::manager::computersManager::IsHostSeted() const
 {
     return *(bool*)this->saIsHostSeted;
+}
+
+std::string ss::manager::computersManager::IPCControlToString() const
+{
+    return IPCControlToString(*(uint8_t*)this->saIPCControl);
+}
+
+std::string ss::manager::computersManager::IPCControlToString(int control)
+{
+    switch (control)
+    {
+    case INSERT:
+        return "INSERT";
+        break;
+    case UPDATE:
+        return "UPDATE";
+        break;
+    case GET:
+        return "GET";
+        break;
+    case READY:
+        return "READY";
+        break;
+    case WAIT:
+        return "WAIT";
+        break;
+    case NEXT:
+        return "NEXT";
+        break;
+    case END:
+        return "END";
+        break;
+    case ENDLIST:
+        return "ENDLIST";
+        break;
+    case SIZE:
+        return "SIZE";
+        break;
+    case REMOVE:
+        return "REMOVE";
+        break;
+    case GETHOST:
+        return "GETHOST";
+        break;
+    case SETHOST:
+        return "SETHOST";
+        break;
+    case ISSETED:
+        return "ISSETED";
+        break;
+    case YES:
+        return "YES";
+        break;
+    case NO:
+        return "NO";
+        break;
+    default:
+        return "UNKNOWN";
+        break;
+    }
 }
