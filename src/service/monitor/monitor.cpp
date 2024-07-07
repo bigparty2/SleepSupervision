@@ -136,6 +136,7 @@ void monitor::MonitorSubservice::serverRun()
                 {
                     computerMonitor.Computer.SetStatus(computer::computerStatus::sleep);
                     this->computersManager->Update(computerMonitor.Computer);
+                    this->lastUpdate++;
                     logger::GetInstance().Log(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " ultrapassou o numero maximo de falhas e foi considerado como dormindo");
                 }
             }
