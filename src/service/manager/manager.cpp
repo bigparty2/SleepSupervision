@@ -265,6 +265,8 @@ void ss::manager::computersManager::RemoveResponse()
     this->_data.erase(this->_data.begin() + index);
 
     this->UpdateLastUpdate();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante removido do sistema");
 }
 
 void ss::manager::computersManager::SendExitMessage(computer computer)
@@ -358,12 +360,17 @@ void manager::computersManager::InsertResponse()
     computer pcd = ReadFromSA();
 
     if(manager::computersManager::IndexOf(pcd.GetIPV4()) != manager::computersManager::npos)
+    {
         //TODO: Implementar retorno para indicar que já existe na lista
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador já registrado no sistema");
         return;
+    }
 
     this->_data.push_back(pcd);
 
     this->UpdateLastUpdate();
+
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador registrado no sistema");
 }
 
 void manager::computersManager::HandleRequest()

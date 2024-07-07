@@ -17,14 +17,14 @@ void discovery::DiscoverySubservice::Start(bool isServer)
 {
     if (isServer)
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como servidor");
         serverRun();
     }
     else
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como cliente");
         clientRun();
     }
-
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
 }
 
 void discovery::DiscoverySubservice::Stop()
@@ -86,7 +86,7 @@ void discovery::DiscoverySubservice::clientRun()
         }        
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Fim");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Encerrando subserviço de descoberta como cliente");
 }
 
 void discovery::DiscoverySubservice::serverRun()
@@ -119,7 +119,7 @@ void discovery::DiscoverySubservice::serverRun()
                                                 network::IPV4(packet.GetPacket().ipv4Origin), 
                                                 computer::computer::awake);
 
-                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante ingressando: " + participant.GetName() + "|" + participant.GetIPV4().ToString());
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Participante solicitando ingresso: " + participant.GetName() + "|" + participant.GetIPV4().ToString());
 
                     //Adiciona computador no sistema
                     this->computersManager->Insert(participant);
@@ -140,7 +140,7 @@ void discovery::DiscoverySubservice::serverRun()
                                                 network::IPV4(packet.GetPacket().ipv4Origin), 
                                                 computer::computer::awake);
 
-                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante saindo: " + participant.GetName() + "|" + participant.GetIPV4().ToString());
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Participante saindo: " + participant.GetName() + "|" + participant.GetIPV4().ToString());
 
                     //Remove computador do sistema
                     this->computersManager->Remove(participant);
