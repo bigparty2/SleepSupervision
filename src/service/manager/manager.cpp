@@ -465,7 +465,7 @@ void manager::computersManager::InsertResponse()
 
 void manager::computersManager::HandleRequest()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pronto para nova requisição");
+    // logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pronto para nova requisição");
 
     auto currentStatus = *(uint8_t*)this->saIPCControl;
 
