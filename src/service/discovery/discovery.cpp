@@ -59,41 +59,50 @@ void discovery::DiscoverySubservice::clientRun()
     //Loop de descoberta
     while(discovery != true)
     {
-        //Envio de pacote de descoberta
-        socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
-
-        //Recebimento de pacote de resposta
-        auto response = socket.receivePacket();
-
-        if(response.IsDataInicialized())
+        if(!this->computersManager->IsHostSeted())
         {
-            //Verifica se o pacote recebido é uma resposta
-            if(response.GetPacket().message == network::packet::OK)
+            //Envio de pacote de descoberta
+            socket.Send(packet, DISCOVERY_PORT_SERVER, INADDR_BROADCAST);
+
+            //Recebimento de pacote de resposta
+            auto response = socket.receivePacket();
+
+            if(response.IsDataInicialized())
             {
-                //Computador host
-                auto host = computer((char*)response.GetPacket().nameOrigin, 
-                                    network::MAC(response.GetPacket().macOrigin), 
-                                    network::IPV4(response.GetPacket().ipv4Origin), 
-                                    computer::computerStatus::awake);            
+                //Verifica se o pacote recebido é uma resposta
+                if(response.GetPacket().message == network::packet::OK)
+                {
+                    //Computador host
+                    auto host = computer((char*)response.GetPacket().nameOrigin, 
+                                        network::MAC(response.GetPacket().macOrigin), 
+                                        network::IPV4(response.GetPacket().ipv4Origin), 
+                                        computer::computerStatus::awake);            
 
-                //log
-                logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
+                    //log
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Host encontrado: " + host.GetName() + "|" + host.GetIPV4().ToString());
 
-                //Definição do computador host
-                this->computersManager->SetHost(host);
-            
-                //Computador adicionado no sistema
-                discovery = true;
+                    //Definição do computador host
+                    this->computersManager->SetHost(host);
+                
+                    //Computador adicionado no sistema
+                    // discovery = true;
+                }
             }
-        }
+            else
+            {
+                //log
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Nenhum host encontrado, tentando novamente ...");
+            }
+        }   
         else
         {
             //log
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Nenhum host encontrado, tentando novamente ...");
-        }        
+            thread::Sleep(5000);
+            // discovery = true;
+        }
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Encerrando subserviço de descoberta como cliente");
+    // logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Encerrando subserviço de descoberta como cliente");
 }
 
 void discovery::DiscoverySubservice::serverRun()
