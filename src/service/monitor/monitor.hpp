@@ -76,6 +76,9 @@ namespace ss
             // Lista de monitores com falha
             std::vector<monitorFail> failedMonitors;
 
+            // Controle de falhas do host
+            uint8_t hostFailCount;
+
             // Máximo de falhas permitidas
             static const uint8_t MAX_FAILS = 3;
 

@@ -46,6 +46,8 @@ void monitor::MonitorSubservice::clientRun()
     uint16_t port = MONITOR_PORT_CLIENT;
     socket.Bind(port);
 
+    this->hostFailCount = 0;
+
     // Monitoring client loop
     while(true)
     {
@@ -58,9 +60,35 @@ void monitor::MonitorSubservice::clientRun()
                 auto returnPacket = network::packet(this->computersManager->thisComputer, network::packet::IMAWAKE, port, packet.GetPacket().seqNum + 1);
 
                 socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().ipv4Origin);
+
+                this->hostFailCount = 0;
             
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pacote do tipo ISAWAKE recebido e respondido ao servidor");
             }
+            else
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pacote não reconhecido recebido do servidor");
+            }
+        }
+        else
+        {
+            if(this->computersManager->IsHostSeted())
+            {
+                // Provavel perda de conexão com o host
+                this->hostFailCount++;
+
+                if(this->hostFailCount > MAX_FAILS)
+                {
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Perda de conexão com o host");
+
+                    // this->computersManager->SetHost(computer::computer());
+                    this->computersManager->ClearHost();
+
+                    this->hostFailCount = 0;
+                }
+            }
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Nenhum pacote recebido");
         }
     
         ss::thread::Sleep(1000);

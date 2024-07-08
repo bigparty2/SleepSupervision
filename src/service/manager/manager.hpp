@@ -75,6 +75,9 @@ namespace ss
             //Define o computador host
             void SetHost(computer computer);
 
+            // Remove  o computador host
+            void ClearHost();
+
             //Retorna a informação se o computador host está definido
             bool IsHostSeted() const;
 
@@ -109,6 +112,9 @@ namespace ss
 
             /// @brief Responde a chamada de definir o computador host
             void SetHostResponse();
+
+            /// @brief Responde a chamada de limpeza do host
+            void ClearHostResponse();
 
             //Atualiza a data da ultima atualização
             void UpdateLastUpdate();
@@ -173,6 +179,7 @@ namespace ss
             static constexpr int ISSETED = 13;  //Verificar se host está definido
             static constexpr int YES     = 14;  //Indica que host foi definido
             static constexpr int NO      = 15;  //Indica que host não foi definido
+            static constexpr int RMHOST  = 16;  //Remover/Limpar host
 
             static const uint16_t DISCOVERY_PORT_SERVER = 45001;
             static const uint16_t MANAGER_PORT_CLIENT_INIT = 45105;

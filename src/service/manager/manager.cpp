@@ -507,6 +507,12 @@ void manager::computersManager::HandleRequest()
         this->RemoveResponse();
         break;
 
+    case RMHOST:
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Removendo computador host");
+        this->ClearHostResponse();
+        break;
+
     default:
         break;
     }
@@ -552,10 +558,17 @@ void manager::computersManager::__Insert(computer computer)
 computer ss::manager::computersManager::GetHost()
 {
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção do computador host");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
+
+    if(!this->IsHostSeted())
+    {
+        // Presumisse que o host deve estar definido para utilização do GetHost
+        throw std::runtime_error("Host não definido");
+    }
 
     if(hostComputer == nullptr)
     {
+        // Entrar em contato com o processo manager para obter o host
+
         sem_wait(this->sem);
 
         while((*(uint8_t*)this->saIPCControl) != READY);
@@ -653,6 +666,61 @@ void ss::manager::computersManager::SetHostResponse()
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
+void ss::manager::computersManager::ClearHost()
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Aguardando liberação semaforo | saIPCControl: " + this->IPCControlToString());
+
+    sem_wait(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status READY | saIPCControl: " + this->IPCControlToString());
+
+    while((*(uint8_t*)this->saIPCControl) != READY);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Definindo status como RMHOST | saIPCControl: " + this->IPCControlToString());
+
+    *(uint8_t*)this->saIPCControl = RMHOST;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
+
+    while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Definindo status como END | saIPCControl: " + this->IPCControlToString());
+
+    *(uint8_t*)this->saIPCControl = END;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Liberando semaforo | saIPCControl: " + this->IPCControlToString());
+
+    sem_post(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim | saIPCControl: " + this->IPCControlToString());
+}
+
+void ss::manager::computersManager::ClearHostResponse()
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Definindo status como WAIT | saIPCControl: " + this->IPCControlToString());
+
+    *(uint8_t*)this->saIPCControl = WAIT;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status END | saIPCControl: " + this->IPCControlToString());
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Definindo PC host como nullptr | saIPCControl: " + this->IPCControlToString());
+
+    delete this->hostComputer;
+    this->hostComputer = nullptr;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Definindo variavel de controle de definição do host como false | saIPCControl: " + this->IPCControlToString());
+
+    *(bool*)this->saIsHostSeted = false;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Atualizando contagem de atualização do Manager | saIPCControl: " + this->IPCControlToString());
+
+    this->UpdateLastUpdate();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Fim | saIPCControl: " + this->IPCControlToString());
+}
+
 bool ss::manager::computersManager::IsHostSeted() const
 {
     return *(bool*)this->saIsHostSeted;
@@ -711,6 +779,9 @@ std::string ss::manager::computersManager::IPCControlToString(int control)
         break;
     case NO:
         return "NO";
+        break;
+    case RMHOST:
+        return "RMHOST";
         break;
     default:
         return "UNKNOWN";
