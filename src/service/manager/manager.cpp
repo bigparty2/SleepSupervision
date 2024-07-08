@@ -75,18 +75,27 @@ void manager::computersManager::UpdateLastUpdate()
 
 computers manager::computersManager::Get() const
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de obtenção de lista de computadores");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de obtenção de lista de computadores | saIPCControl: " + this->IPCControlToString());
 
     auto pcList = computers();
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Aguardando liberação semaforo | saIPCControl: " + this->IPCControlToString());
+
     sem_wait(this->sem);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status READY | saIPCControl: " + this->IPCControlToString());
 
     while((*(uint8_t*)this->saIPCControl) != READY);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo status como GET | saIPCControl: " + this->IPCControlToString());
+
     *(uint8_t*)this->saIPCControl = GET;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) == GET);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Iniciando processo de leitura de computadores | saIPCControl: " + this->IPCControlToString());
 
     while((*(uint8_t*)this->saIPCControl) != ENDLIST)
     {
@@ -99,18 +108,24 @@ computers manager::computersManager::Get() const
         while((*(uint8_t*)this->saIPCControl) == NEXT);
     }
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Definindo status como END | saIPCControl: " + this->IPCControlToString());
+
     *(uint8_t*)this->saIPCControl = END;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Liberando semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_post(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de obtenção de lista de computadores");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Finalizando processo de obtenção de lista de computadores | saIPCControl: " + this->IPCControlToString());
 
     return pcList;
 }
 
 void manager::computersManager::GetResponse()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de obtenção de lista de computadores");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de resposta de obtenção de lista de computadores | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Iniciando escrita dos computadores na área de memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
     for(auto &pcd : this->_data)
     {
@@ -121,11 +136,15 @@ void manager::computersManager::GetResponse()
         while((*(uint8_t*)this->saIPCControl) != NEXT);
     }
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Definindo status como ENDLIST | saIPCControl: " + this->IPCControlToString());
+
     *(uint8_t*)this->saIPCControl = ENDLIST;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Aguardando status END | saIPCControl: " + this->IPCControlToString());
 
     while((*(uint8_t*)this->saIPCControl) != END);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de obtenção de lista de computadores");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Finalizando processo de resposta de obtenção de lista de computadores | saIPCControl: " + this->IPCControlToString());
 }
 
 uint64_t manager::computersManager::IndexOf(std::string hostname)
@@ -163,87 +182,128 @@ uint64_t manager::computersManager::IndexOf(network::MAC macAddr)
 
 void manager::computersManager::Update(computer computer)
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de atualização de computador");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de atualização de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Aguardando liberação de semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_wait(this->sem);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status READY | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != READY);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo status como UPDATE | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = UPDATE;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Escrevendo PC na memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
     WriteOnSA(computer);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Definindo status como END | saIPCControl: " + this->IPCControlToString());
+
     *(uint8_t*)this->saIPCControl = END;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Liberando semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_post(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de atualização de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Finalizando processo de atualização de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::Remove(computer computer)
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de remoção de computador");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de remoção de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Verificando se este computador é o host | saIPCControl: " + this->IPCControlToString());
 
     //Se for host, remove o computador informado
     if(this->isHost)
     {
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Remoção de participante como host");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.1. Remoção de participante como host | saIPCControl: " + this->IPCControlToString());
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.2. Aguardando liberação de semaforo | saIPCControl: " + this->IPCControlToString());
 
         sem_wait(this->sem);
 
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.3. Aguardando status READY | saIPCControl: " + this->IPCControlToString());
+
         while((*(uint8_t*)this->saIPCControl) != READY);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.4. Definindo status como REMOVE | saIPCControl: " + this->IPCControlToString());
 
         *(uint8_t*)this->saIPCControl = REMOVE;
 
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.5. Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
+
         while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.6. Escrevendo PC na memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
         WriteOnSA(computer);
 
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.7. Definindo status como END | saIPCControl: " + this->IPCControlToString());
+
         *(uint8_t*)this->saIPCControl = END;
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.8. Liberando semaforo | saIPCControl: " + this->IPCControlToString());
 
         sem_post(this->sem);
     }
     //Se não for host, envia a solicitação para o host para remover o computador informado
     else
     {
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Remoção de participante como participante");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.1 Remoção de participante como participante | saIPCControl: " + this->IPCControlToString());
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2.2 Enviando mensagem de saída para o host | saIPCControl: " + this->IPCControlToString());
 
         this->SendExitMessage(computer);
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de remoção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Finalizando processo de remoção de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::RemoveResponse()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de remoção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de resposta de remoção de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Definindo status como WAIT | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status END | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != END);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Lendo PC da memória compartilhada | saIPCControl: " + this->IPCControlToString());
+
     computer pcd = ReadFromSA();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Procurando participante para remoção | saIPCControl: " + this->IPCControlToString());
 
     auto index = manager::computersManager::IndexOf(pcd.GetIPV4());
 
     if(index == manager::computersManager::npos)
     {
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante não encontrado para remoção");
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de remoção de computador");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Participante não encontrado para remoção | saIPCControl: " + this->IPCControlToString());
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Finalizando processo de resposta de remoção de computador | saIPCControl: " + this->IPCControlToString());
 
         return;    
     }
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Removendo participante do sistema | saIPCControl: " + this->IPCControlToString());
+
     this->_data.erase(this->_data.begin() + index);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Atualizando contador de modificações da lista de computadores | saIPCControl: " + this->IPCControlToString());
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante removido do sistema.");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de remoção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Finalizando processo de resposta de remoção de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::SendExitMessage(computer computer)
@@ -295,76 +355,118 @@ void ss::manager::computersManager::SendExitMessage(computer computer)
 
 void manager::computersManager::UpdateResponse()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de atualização de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de resposta de atualização de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Definindo status como WAIT | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status END | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != END);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Lendo PC da memória compartilhada | saIPCControl: " + this->IPCControlToString());
+
     computer pcd = ReadFromSA();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Procurando participante para atualização | saIPCControl: " + this->IPCControlToString());
 
     auto index = manager::computersManager::IndexOf(pcd.GetIPV4());
 
     if(index == manager::computersManager::npos)
-        return;
+    {
+        // TODO: Necessário implementar trativa, pois se receber uma atualização de um computador que não existe, significa alguma inconsistencia
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Participante não encontrado para atualização | saIPCControl: " + this->IPCControlToString());
+        return;    
+    }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Atualizando participante no sistema | saIPCControl: " + this->IPCControlToString());
 
     this->_data.at(index) = pcd;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Atualizando contador de modificações da lista de computadores | saIPCControl: " + this->IPCControlToString());
+
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de atualização de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Finalizando processo de resposta de atualização de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void manager::computersManager::Insert(computer computer)
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de inserção de computador");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de inserção de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Aguardando liberação de semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_wait(this->sem);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status READY | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != READY);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo status como INSERT | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = INSERT;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != WAIT);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Escrevendo PC na memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
     WriteOnSA(computer);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Definindo status como END | saIPCControl: " + this->IPCControlToString());
+
     *(uint8_t*)this->saIPCControl = END;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Liberando semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_post(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de inserção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Finalizando processo de inserção de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void manager::computersManager::InsertResponse()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando processo de resposta de inserção de computador");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Definindo status como WAIT | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando status END | saIPCControl: " + this->IPCControlToString());
+
     while((*(uint8_t*)this->saIPCControl) != END);
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Lendo PC da memória compartilhada | saIPCControl: " + this->IPCControlToString());
+
     computer pcd = ReadFromSA();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Verificando se participante já não está presente | saIPCControl: " + this->IPCControlToString());
 
     if(manager::computersManager::IndexOf(pcd.GetIPV4()) != manager::computersManager::npos)
     {
         //TODO: Implementar retorno para indicar que já existe na lista
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador já registrado no sistema");
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "6. Computador já registrado no sistema | saIPCControl: " + this->IPCControlToString());
+        logger::GetInstance().Log(__PRETTY_FUNCTION__, "7. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
         return;
     }
 
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Adicionando participante ao sistema | saIPCControl: " + this->IPCControlToString());
+
     this->_data.push_back(pcd);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Atualizando contador de modificações da lista de computadores | saIPCControl: " + this->IPCControlToString());
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador registrado no sistema");
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando processo de resposta de inserção de computador");
-
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void manager::computersManager::HandleRequest()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pronto para nova requisição");
+
     auto currentStatus = *(uint8_t*)this->saIPCControl;
 
     switch (currentStatus)
@@ -410,6 +512,8 @@ void manager::computersManager::HandleRequest()
     }
 
     *(uint8_t*)this->saIPCControl = READY;
+
+    thread::Sleep(500);
 }
 
 computer manager::computersManager::ReadFromSA() const
@@ -489,64 +593,64 @@ void ss::manager::computersManager::GetHostResponse()
 
 void ss::manager::computersManager::SetHost(computer computer)
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Aguardando liberação semaforo");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Aguardando liberação semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_wait(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status READY");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status READY | saIPCControl: " + this->IPCControlToString());
     
     while((*(uint8_t*)this->saIPCControl) != READY);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Definindo status como SETHOST");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Definindo status como SETHOST | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = SETHOST;
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Aguardando status WAIT");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Aguardando status WAIT | saIPCControl: " + this->IPCControlToString());
 
     while((*(uint8_t*)this->saIPCControl) != WAIT);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Escrevendo PC na memória compartilhada");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Escrevendo PC na memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
     WriteOnSA(computer);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Definindo status como END");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Definindo status como END | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = END;
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Liberando semaforo");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Liberando semaforo | saIPCControl: " + this->IPCControlToString());
 
     sem_post(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::SetHostResponse()
 {
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Definindo status como WAIT");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1 Definindo status como WAIT | saIPCControl: " + this->IPCControlToString());
 
     *(uint8_t*)this->saIPCControl = WAIT;
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status END");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2 Aguardando status END | saIPCControl: " + this->IPCControlToString());
 
     while((*(uint8_t*)this->saIPCControl) != END);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Lendo PC da memória compartilhada");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3 Lendo PC da memória compartilhada | saIPCControl: " + this->IPCControlToString());
 
     computer pcd = ReadFromSA();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Definindo PC host");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4 Definindo PC host | saIPCControl: " + this->IPCControlToString());
 
     this->hostComputer = new computer(pcd);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Definindo variavel de controle de definição do host como true");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5 Definindo variavel de controle de definição do host como true | saIPCControl: " + this->IPCControlToString());
 
     *(bool*)this->saIsHostSeted = true;
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Atualizando contagem de atualização do Manager");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6 Atualizando contagem de atualização do Manager | saIPCControl: " + this->IPCControlToString());
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 bool ss::manager::computersManager::IsHostSeted() const

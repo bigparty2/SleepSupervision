@@ -20,6 +20,7 @@
 #include "../../common/computer/computer.hpp"
 #include "../../common/MAC/mac.hpp"
 #include "../../common/IPV4/ipv4.hpp"
+#include "../../common/thread/thread.hpp"
 #include "../../common/socket/socket.hpp"
 
 namespace ss
