@@ -447,8 +447,8 @@ void manager::computersManager::InsertResponse()
     if(manager::computersManager::IndexOf(pcd.GetIPV4()) != manager::computersManager::npos)
     {
         //TODO: Implementar retorno para indicar que já existe na lista
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "6. Computador já registrado no sistema | saIPCControl: " + this->IPCControlToString());
-        logger::GetInstance().Log(__PRETTY_FUNCTION__, "7. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "6. Computador já registrado no sistema | saIPCControl: " + this->IPCControlToString());
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "7. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
         return;
     }
 
