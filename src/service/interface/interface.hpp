@@ -278,7 +278,7 @@ namespace ss
             size_t lastPCsSize = 0;
 
             // Lista de teclas aceitas
-            std::vector<int> keysList = {(int)'Q', (int)'q', 27, 32};
+            std::vector<int> keysList = {(int)'Q', (int)'q', 27, 32, (int)'H', (int)'h'};
 
             // Desenha a logo de entrada do sistema na tela
             void DrawLogo();
@@ -338,6 +338,27 @@ namespace ss
             const unsigned char logoLength = 109;
             const unsigned char logoHeight = 6;
 
+            // Elementos da tela de ajuda (Gerenciador)
+            const std::vector<std::string> managerHelpTexts = 
+            {
+                "Ajuda (Gerenciador)",
+                "Utilize as setas para navegar entre os computadores",
+                "Com um computador selecionado, pressione ESPAÇO para acordá-lo",
+                "Pressione Q para encerrar o sistema",
+                "Pressione qualquer tecla para voltar"
+            };
+
+            // Elementos da tela de ajuda (Participante)
+            const std::vector<std::string> participantHelpTexts = 
+            {
+                "Ajuda (Participante)",
+                "Aguarde enquanto o sistema procura um host para se conectar",
+                "Pressione Q para encerrar o sistema",
+                "Pressione qualquer tecla para voltar"
+            };
+
+            // Variavel de controle para verificar se a tela de ajuda está ativa
+            bool helpScreen = false;
         };
     }
 }

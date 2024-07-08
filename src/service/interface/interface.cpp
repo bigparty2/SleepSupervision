@@ -146,6 +146,14 @@ void interface::interfaceManager::InputManager()
         //Se tiver algo para ler
         if(KbHit())
         {
+            if(this->helpScreen)
+            {
+                this->helpScreen = false;
+                this->CriticalRegion();
+                std::getchar();
+                continue;
+            }
+
             //Ler do teclado
             auto key = std::getchar();
 
@@ -161,6 +169,12 @@ void interface::interfaceManager::InputManager()
                 if(!this->IsManager and this->machinesManager->IsHostSeted())
                     this->machinesManager->Remove(this->machinesManager->thisComputer);
                 this->tend = std::thread(&interface::interfaceManager::End, this);
+                break;
+
+            case (int)'H':
+            case (int)'h':
+                this->helpScreen = true;
+                this->CriticalRegion();
                 break;
 
             //Controle de setas
@@ -413,31 +427,57 @@ void interface::interfaceManager::Draw()
     //Verifica se é participante
     if(!this->IsManager)
     {
-        if(this->machinesManager->IsHostSeted())
+        if(this->helpScreen)
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.1 Desenha info com host informado");
+            // Print tela de ajuda de participante
 
-            auto host = this->machinesManager->GetHost();
-            this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
-            std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
+            this->GotoYX((linhasY / 2) - (participantHelpTexts.size() - 2) , 1);
 
-            //Print instruções de comando
-            this->GotoYX(this->commandInfoLinePos, 1);
-            std::cout << string::ToCenter(this->noDataCommand, colunasX);
+            for(const auto &text : participantHelpTexts)
+            {
+                std::cout << string::ToCenter(text, colunasX) << '\n' << '\n';
+            }
         }
         else
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.2 Desenho info sem host informado");
+            if(this->machinesManager->IsHostSeted())
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.1 Desenha info com host informado");
 
-            this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
-            std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
+                auto host = this->machinesManager->GetHost();
+                this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
+                std::cout << string::ToCenter((this->hostMsg + host.GetName() + "|" + host.GetMAC().ToString() + "|" + host.GetIPV4().ToString()), colunasX);
 
-            //Print instruções de comando
-            this->GotoYX(this->commandInfoLinePos, 1);
-            std::cout << string::ToCenter(this->noDataCommand, colunasX);
+                //Print instruções de comando
+                this->GotoYX(this->commandInfoLinePos, 1);
+                std::cout << string::ToCenter(this->noDataCommand, colunasX);
+            }
+            else
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "2.2 Desenho info sem host informado");
+
+                this->GotoYX((this->frameBottomLinePos+this->frameTopLinePos)/2, 1);
+                std::cout << string::ToCenter(this->clientWaittMsg, colunasX);
+
+                //Print instruções de comando
+                this->GotoYX(this->commandInfoLinePos, 1);
+                std::cout << string::ToCenter(this->noDataCommand, colunasX);
+            }
         }
 
+        
             logger::GetInstance().Debug(__PRETTY_FUNCTION__, "3 Fim desenho de info");
+    }
+    else if(this->helpScreen)
+    {
+        // Print tela de ajuda de gerenciador
+
+        this->GotoYX((linhasY / 2) - (managerHelpTexts.size() - 2) , 1);
+
+        for(const auto &text : managerHelpTexts)
+        {
+            std::cout << string::ToCenter(text, colunasX) << '\n' << '\n';
+        }
     }
     //Verifica se há computadores a ser exibidos
     else if(this->machines.size())
