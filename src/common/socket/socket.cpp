@@ -129,9 +129,24 @@ ss::network::packet network::Socket::receivePacket()
             // logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Timeout");
             return ss::network::packet(); 
         }
+        else if (errno == EINTR)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket Interrupted system call");
+            return ss::network::packet();
+        }
+        else if (errno == EMSGSIZE)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket received message too long");
+            return ss::network::packet();
+        }
+        else if (errno == EFAULT)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Erro no buffer. Erro: " + std::string(std::strerror(errno)));
+            throw std::runtime_error("Erro no buffer. Erro: " + std::string(std::strerror(errno)));
+        }
         else
         {
-            //TODO: Incluir erro na classe LOG
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Falha ao receber pacote. Erro: " + std::string(std::strerror(errno)));
             throw std::runtime_error("Falha ao receber pacote. Erro: " + std::string(std::strerror(errno)));
         }
     }
