@@ -2,6 +2,7 @@
 #define COMPUTER_HPP
 
 #include <string>
+#include <vector>
 #include <unistd.h>
 
 #include "../logger/logger.hpp"
@@ -16,6 +17,17 @@ namespace ss
     class computer
     {
         public:
+
+        /**
+         * @brief struct com tipos básicos para armazenamento de um dado de um computador.
+         */ 
+        struct computerData
+        {
+            char name[64]; /**< O nome do computador. */
+            byte macAddr[6]; /**< O endereço MAC do computador. */
+            uint32_t ipv4; /**< O endereço IPv4 do computador. */
+            uint8_t status; /**< O estado do computador. */
+        };
 
         /**
          * @brief Enumeração que define os possíveis estados de um computador.
@@ -73,6 +85,12 @@ namespace ss
         computer(std::string name, network::MAC macAddr, network::IPV4 ipv4, computerStatus status);
 
         /**
+         * @brief Construtor da classe computer.
+         * @param data A estrutura ComputerData com os dados do computador.
+         */
+        computer(computerData data);
+
+        /**
          * @brief Obtém o nome do computador.
          * @return O nome do computador.
          */
@@ -107,6 +125,12 @@ namespace ss
          * @param status O estado do computador.
          */
         void SetStatus(computerStatus status);
+
+        /**
+         * @brief Converte os dados da classe Computer para a estrutura ComputerData de tipos básicos
+         * @return A estrutura ComputerData com os dados do computador.
+         */
+        computerData ToComputerData();
 
         private: 
 

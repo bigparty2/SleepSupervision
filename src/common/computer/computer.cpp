@@ -10,6 +10,14 @@ computer::computer(std::string name, network::MAC macAddr, network::IPV4 ipv4, c
     this->status = status;
 }
 
+computer::computer(computerData data)
+{
+    this->name = data.name;
+    this->macAddr = data.macAddr;
+    this->ipv4 = data.ipv4;
+    this->status = static_cast<ss::computer::computerStatus>(data.status);
+}
+
 std::string computer::GetComputerName()
 {
     char hostname[256];
