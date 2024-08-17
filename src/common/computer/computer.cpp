@@ -86,3 +86,15 @@ void computer::SetStatus(computer::computerStatus status)
     this->status = status;
 }
 
+computer::computerData computer::ToComputerData()
+{
+    computerData data;
+
+    std::strncpy(data.name, this->name.substr(0, sizeof(data.name)).c_str(), sizeof(data.name));
+    for(int i = 0; i < 6; i++)
+        data.macAddr[i] = this->macAddr.Get()[i];
+    data.ipv4 = this->ipv4.Get();
+    data.status = static_cast<uint8_t>(this->status);
+
+    return data;
+}

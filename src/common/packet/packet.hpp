@@ -45,7 +45,8 @@ namespace ss
                 OK = 2, /**< OK. */
                 ERROR = 3, /**< Erro. */
                 ISAWAKE = 4, /**< Está acordado. */
-                IMAWAKE = 5 /**< Estou acordado. */
+                IMAWAKE = 5, /**< Estou acordado. */
+                EMPTY
             };
 
             /**
@@ -133,7 +134,7 @@ namespace ss
              * 
              * @return O timestamp atual.
              */
-            int64_t GetTimestamp();
+            static int64_t GetTimestamp();
         };
     }
 }   

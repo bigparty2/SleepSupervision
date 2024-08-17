@@ -70,6 +70,10 @@ void network::Socket::Send(packet& packet, uint16_t port, char* address)
     this->Send((char*)packet.GetPacketData(), packet.GetPacketSize(), port, address);
 }
 
+void network::Socket::Send(ss::network::ComunicationPacket packet)
+{
+    this->Send((char*)packet.GetPacketData(), packet.GetPacketMSGSize(), packet.GetPacketMSG().portDest, packet.GetPacketMSG().destPC.ipv4);
+}
 
 void network::Socket::Bind(uint16_t &port, uint16_t range)
 {
@@ -103,6 +107,73 @@ void network::Socket::Bind(uint16_t &port, uint16_t range)
     }
 
     this->bindIsSet = true;
+}
+
+ss::network::ComunicationPacket network::Socket::Receive()
+{   
+    if(!this->bindIsSet)
+    {
+        //TODO: Incluir erro na classe LOG
+        throw std::runtime_error("Bind não foi definido.");
+    }
+
+    byte buffer[ComunicationPacket::GetPacketMSGSize()];
+    std::memset(buffer, 0, ComunicationPacket::GetPacketMSGSize());
+
+    struct sockaddr_in client;
+    socklen_t clientLen = sizeof(struct sockaddr_in);
+
+    auto bytesReceived = recvfrom(this->descriptor, buffer, ComunicationPacket::GetPacketMSGSize(), 0, reinterpret_cast<sockaddr*>(&client), &clientLen);
+
+    if(bytesReceived == SOCKET_ERROR)
+    {   
+        if(errno == EAGAIN || errno == EWOULDBLOCK)
+        {
+            //Timeout
+            // logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Timeout");
+            throw std::runtime_error("Timeout"); 
+        }
+        else if (errno == EINTR)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket Interrupted system call");
+            throw std::runtime_error("Socket Interrupted system call");
+        }
+        else if (errno == EMSGSIZE)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Socket received message too long");
+            throw std::runtime_error("Socket received message too long");
+        }
+        else if (errno == EFAULT)
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Erro no buffer. Erro: " + std::string(std::strerror(errno)));
+            throw std::runtime_error("Erro no buffer. Erro: " + std::string(std::strerror(errno)));
+        }
+        else
+        {
+            logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Falha ao receber pacote. Erro: " + std::string(std::strerror(errno)));
+            throw std::runtime_error("Falha ao receber pacote. Erro: " + std::string(std::strerror(errno)));
+        }
+    } else if (bytesReceived == ComunicationPacket::GetPacketMSGSize())
+    {
+        ComunicationPacket::__packetMsg *packetMsg = new ComunicationPacket::__packetMsg;
+        std::memcpy(packetMsg, buffer, ComunicationPacket::GetPacketMSGSize());
+        ComunicationPacket::__packetMsg packet = *packetMsg;
+        delete packetMsg;
+        return packet;
+
+
+    } else if (bytesReceived == ComunicationPacket::GetPacketMSGSize())
+    {
+        ComunicationPacket::__packetMsg *packetMsg = new ComunicationPacket::__packetMsg;
+        std::memcpy(packetMsg, buffer, ComunicationPacket::GetPacketMSGSize());
+        ComunicationPacket::__packetMsg packet = *packetMsg;
+        delete packetMsg;
+        return packet;
+    
+    } else
+    {
+        throw std::runtime_error("Tamanho de pacote inválido");
+    }
 }
 
 ss::network::packet network::Socket::receivePacket()

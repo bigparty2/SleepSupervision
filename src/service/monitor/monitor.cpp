@@ -18,11 +18,13 @@ void monitor::MonitorSubservice::Start(bool isServer)
     if (isServer)
     {
         this->UpdateComputersToMonior();
-        serverRun();
+        // serverRun();
+        serverRun_V2();
     }
     else
     {
-        clientRun();
+        // clientRun();
+        serverRun_V2();
     }
 }
 
@@ -92,6 +94,46 @@ void monitor::MonitorSubservice::clientRun()
         }
     
         ss::thread::Sleep(1000);
+    }
+}
+
+void monitor::MonitorSubservice::clientRun_V2()
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciado");
+
+    auto comMonitorClient = network::Comunication<network::ComunicationType::monitorClient>();
+    auto comBully = network::Comunication<network::ComunicationType::bully>();
+
+    this->hostFailCount = 0;
+
+    while(true)
+    {
+        if(comMonitorClient.ResponseIsAwakeRequest())
+        {
+            this->hostFailCount = 0;
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pacote do tipo ISAWAKE recebido e respondido ao servidor");
+        }
+        else
+        {
+            if(this->computersManager->IsHostSeted())
+            {
+                this->hostFailCount++;
+
+                if(this->hostFailCount > MAX_FAILS)
+                {
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Perda de conexão com o host");
+
+                    this->computersManager->ClearHost();
+                    // this->computersManager->SetHost(comBully.NewElection(this->computersManager->thisComputer.GetID()));
+
+                    this->hostFailCount = 0;
+                }
+            }
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Nenhum pacote recebido");
+        }
+    
+        ss::thread::Sleep(500);
     }
 }
 
@@ -165,6 +207,61 @@ void monitor::MonitorSubservice::serverRun()
                     computerMonitor.Computer.SetStatus(computer::computerStatus::sleep);
                     this->computersManager->Update(computerMonitor.Computer);
                     logger::GetInstance().Log(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " ultrapassou o numero maximo de falhas e foi considerado como dormindo");
+                }
+            }
+        }
+
+        thread::Sleep(500);
+    }
+}
+
+void monitor::MonitorSubservice::serverRun_V2()
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciado");
+
+    auto comMonitorServ = network::Comunication<network::ComunicationType::monitorServer>();
+
+    while(true)
+    {
+        if(this->lastUpdate != this->computersManager->LastUpdate())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar lista de computadores atulizada");
+
+            this->UpdateComputersToMonior();
+        }
+        else if (!this->failedMonitors.empty())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciando verificação dos computadores");
+
+            for(auto& computerMonitor : this->failedMonitors)
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciada verificação do computador " + computerMonitor.Computer.GetName());
+
+                if(comMonitorServ.IsAwake(computerMonitor.Computer))
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " respondeu que está acordado");
+
+                    computerMonitor.failCount = 0;
+
+                    if(computerMonitor.Computer.GetStatus() == computer::computerStatus::sleep)
+                    {
+                        computerMonitor.Computer.SetStatus(computer::computerStatus::awake);
+                        this->computersManager->Update(computerMonitor.Computer);
+
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " estava com status de 'dormindo'");
+                    }
+                }
+                else if (computerMonitor.Computer.GetStatus() == computer::computerStatus::awake)
+                {
+                    computerMonitor.failCount++;
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
+
+                    if(computerMonitor.failCount > MAX_FAILS)
+                    {
+                        computerMonitor.Computer.SetStatus(computer::computerStatus::sleep);
+                        this->computersManager->Update(computerMonitor.Computer);
+                        logger::GetInstance().Log(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " ultrapassou o numero maximo de falhas e foi considerado como dormindo");
+                    }
                 }
             }
         }

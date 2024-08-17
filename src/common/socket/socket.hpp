@@ -4,6 +4,7 @@
 #include "../types.hpp"
 #include "../packet/packet.hpp"
 #include "../logger/logger.hpp"
+#include "../comunication/comunicationPacket.hpp"
 
 namespace ss
 {
@@ -82,11 +83,25 @@ namespace ss
             void Send(packet& packet, uint16_t port, char* address);
 
             /**
+             * @brief Sends a packet over a socket.
+             *
+             * @param packet The packet to send.
+             */
+            void Send(ComunicationPacket packet);
+
+            /**
              * @brief Receives a packet from the socket.
              *
              * @return The received packet.
              */
             packet receivePacket();
+
+            /**
+             * @brief Receives a packet from the socket.
+             *
+             * @return The received packet.
+             */
+            ComunicationPacket Receive();
 
             //operator = denided
             Socket& operator=(const Socket&) = delete;

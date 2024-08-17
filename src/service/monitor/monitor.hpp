@@ -8,6 +8,10 @@
 #include "../../common/thread/thread.hpp"
 #include "../../common/logger/logger.hpp"
 
+#include "../../common/comunication/comunication.hpp"
+#include "../../common/comunication/comunicationPacket.hpp"
+#include "../../common/comunication/comunicationType.hpp"
+
 namespace ss
 {
     namespace monitor
@@ -47,11 +51,13 @@ namespace ss
              * @brief Executa o processo do cliente.
              */
             void clientRun();
+            void clientRun_V2();
 
             /**
              * @brief Executa o processo do servidor.
              */
             void serverRun();
+            void serverRun_V2();
 
             /**
              * @brief Atualiza a lista de computadores para monitorar.
