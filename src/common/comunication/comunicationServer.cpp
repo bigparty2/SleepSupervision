@@ -286,6 +286,7 @@ void Comunication<ComunicationType::server>::HandleRequest()
                 this->ClearMessagesResponse();
                 break;
             default:
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "No command to handle");
                 break;
         }
 

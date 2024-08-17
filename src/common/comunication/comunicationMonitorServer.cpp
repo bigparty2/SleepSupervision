@@ -4,6 +4,8 @@ using namespace ss::network;
 
 bool Comunication<monitorServer>::IsAwake(computer& toPC)
 {
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Enviando mensagem de ISAWAKE para o computador " + toPC.GetName());
+
     Comunication<server>& comServ = Comunication<server>::GetInstance();
 
     comServ.SendToQueue(toPC, monitorClient, ComunicationPacket::message::ISAWAKE, monitorServer);
@@ -26,6 +28,8 @@ bool Comunication<monitorServer>::WaitIsAwakeResponse(computer& toPC, short time
             if(packet.GetPacketMessage() == packet::packetMesg::IMAWAKE)
             {
                 comServ.ClearMessagesTo(monitorServer);
+
+                logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador " + toPC.GetName() + " está acordado!");
 
                 return true;
             }

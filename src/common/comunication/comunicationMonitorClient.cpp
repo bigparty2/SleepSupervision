@@ -20,6 +20,8 @@ bool Comunication<monitorClient>::ResponseIsAwakeRequest()
 
                 comServer.SendToQueue(std::get<0>(packet.GetOriginPCInfo()), monitorServer, ComunicationPacket::message::IMAWAKE, monitorClient);
 
+                logger::GetInstance().Log(__PRETTY_FUNCTION__, "Respondendo ISAWAKE para o computador " + std::get<0>(packet.GetOriginPCInfo()).GetName());
+
                 return true;
             }
         }
@@ -27,6 +29,8 @@ bool Comunication<monitorClient>::ResponseIsAwakeRequest()
         {
             if(e.type == ComunicationException::Type::NOT_FOUND)
             {
+                logger::GetInstance().Log(__PRETTY_FUNCTION__, "Mensagem não encontrada, tentando novamente ...");
+
                 continue;
             }
             else
