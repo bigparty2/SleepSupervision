@@ -223,6 +223,9 @@ void Comunication<ComunicationType::server>::ClearMessagesResponse()
 
 Comunication<ComunicationType::server>::Comunication()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Starting server comunication");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Init constructor");
+
     //inicialização memória compartilhada
     this->ComunicationServerCommandSA = mmap(NULL, sizeof(Command), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->PacketMsgSA = mmap(NULL, sizeof(ComunicationPacket::__packetMsg), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -247,6 +250,8 @@ Comunication<ComunicationType::server>::Comunication()
     this->socketListener->SetConfig(SO_REUSEPORT, 1);
     uint16_t portListener = static_cast<uint16_t>(COM_LISTENER_PORT);
     this->socketListener->Bind(portListener);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "End constructor");
 }
 
 Comunication<ComunicationType::server>::~Comunication()
@@ -337,6 +342,8 @@ void Comunication<ComunicationType::server>::HandleListener()
         {
             auto packet = this->socketListener->Receive();
 
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Received packet");
+
             this->socketListener->Send(this->BuildOKPacket(packet));
 
             this->AddToReceiveQueue(packet);
@@ -381,8 +388,12 @@ void Comunication<ComunicationType::server>::HandleSander()
                 this->AddToSendQueue(packet);
                 ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, e.what());
                 continue;
-            }
-            
+            } 
+        }
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "SendQueue is empty");
+            thread::Sleep(100);
         }
     }
 }

@@ -73,6 +73,8 @@ int main (int argc, char** argv)
     //gerenciador de participantes compartilhado
     ss::manager::computersManager cm(isManager);
 
+    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado gerenciador de mensagens (Comunication)");
+
     // Inicializacao do servidor da classe comunication
     ss::network::Comunication<ss::network::ComunicationType::server>& 
         comServer = ss::network::Comunication<ss::network::ComunicationType::server>::GetInstance(&cm);
