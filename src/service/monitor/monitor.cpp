@@ -24,7 +24,7 @@ void monitor::MonitorSubservice::Start(bool isServer)
     else
     {
         // clientRun();
-        serverRun_V2();
+        clientRun_V2();
     }
 }
 
