@@ -393,6 +393,8 @@ void Comunication<ComunicationType::server>::HandleSander()
 
             this->socketSender->Send(packet);
 
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet sent");
+
             //Receber confirmação de recebimento
             try
             {
@@ -400,12 +402,16 @@ void Comunication<ComunicationType::server>::HandleSander()
                 
                 if(ret.GetPacketMessage() == ComunicationPacket::message::OK && packet.GetSeqNum() == ret.GetSeqNum() + 1)
                 {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet sent and received");
+
                     continue;
                 }
                 else
                 {
                     //Adiciona mensagem de volta ao final da fila
                     this->AddToSendQueue(packet);
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet not sent, adding back to queue");
 
                 }
                 
