@@ -452,15 +452,21 @@ void manager::computersManager::InsertResponse()
         return;
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Adicionando participante ao sistema | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Atribuir id ao novo participante | saIPCControl: " + this->IPCControlToString());
+    
+    pcd.SetID(this->GetNewID());
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Adicionando participante ao sistema | saIPCControl: " + this->IPCControlToString());
+    
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Id atribuído: " + std::to_string(pcd.GetID()) + " | saIPCControl: " + this->IPCControlToString());
 
     this->_data.push_back(pcd);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Atualizando contador de modificações da lista de computadores | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Atualizando contador de modificações da lista de computadores | saIPCControl: " + this->IPCControlToString());
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10. Finalizando processo de resposta de inserção de computador | saIPCControl: " + this->IPCControlToString());
 }
 
 void manager::computersManager::HandleRequest()
@@ -787,4 +793,22 @@ std::string ss::manager::computersManager::IPCControlToString(int control)
         return "UNKNOWN";
         break;
     }
+}
+
+int ss::manager::computersManager::GetNewID()
+{
+    auto biggerId = 0;
+
+    if(this->_data.size() != 0)
+    {
+        auto biggerId = 0;
+
+        for(auto &pcd : this->_data)
+        {
+            if(pcd.GetID() > biggerId)
+                biggerId = pcd.GetID();
+        }
+    }
+
+    return biggerId + 1;
 }

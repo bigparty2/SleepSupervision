@@ -98,3 +98,13 @@ computer::computerData computer::ToComputerData()
 
     return data;
 }
+
+int computer::GetID() const
+{
+    return this->id;
+}
+
+void computer::SetID(int id)
+{
+    this->id = id;
+}

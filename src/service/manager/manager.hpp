@@ -138,6 +138,9 @@ namespace ss
             std::string IPCControlToString() const;
             static std::string IPCControlToString(int control);
 
+            //Pegar o número de um novo ID para um computador que está ingressando
+            int GetNewID();
+
             //Armazena as informações dos computadores
             computers _data;
 

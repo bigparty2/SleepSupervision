@@ -27,6 +27,9 @@ namespace ss
             byte macAddr[6]; /**< O endereço MAC do computador. */
             uint32_t ipv4; /**< O endereço IPv4 do computador. */
             uint8_t status; /**< O estado do computador. */
+            int id; /**< O identificador do computador. */
+            bool isLeader; /**< Indica se o computador é o líder da rede. */
+            u_int16_t port; /**< A porta de comunicação do computador. */
         };
 
         /**
@@ -132,12 +135,17 @@ namespace ss
          */
         computerData ToComputerData();
 
+        int GetID() const;
+        void SetID(int id);
+
         private: 
 
         std::string name; /**< O nome do computador. */
         network::MAC macAddr; /**< O endereço MAC do computador. */
         network::IPV4 ipv4; /**< O endereço IPv4 do computador. */
         computerStatus status; /**< O estado do computador. */
+        bool isLeader = false; /**< Indica se o computador é o líder da rede. */
+        int id; /**< O identificador do computador. */
     };
 
     typedef std::vector<ss::computer> computers; /**< Um vetor de computadores. */
