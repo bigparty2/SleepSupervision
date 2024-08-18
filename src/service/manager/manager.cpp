@@ -13,6 +13,7 @@ manager::computersManager::computersManager(bool isHost)
     this->saStatus = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->saIPCControl = mmap(NULL, sizeof(uint8_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->saIsHostSeted = mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    this->saComputerData = mmap(NULL, sizeof(computer::computerData), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     //atribuição da variavel host
     this->isHost = isHost;
@@ -530,30 +531,35 @@ void manager::computersManager::HandleRequest()
 
 computer manager::computersManager::ReadFromSA() const
 {
-    return computer {
-            std::string((char*)this->saHostname),
-            network::MAC((byte*)this->saMAC),
-            network::IPV4(*(int32_t*)this->saIPV4),
-            static_cast<computer::computerStatus>(*(uint8_t*)this->saStatus)
-        };
+    return computer(*(computer::computerData*)this->saComputerData);
+
+    // return computer {
+    //         std::string((char*)this->saHostname),
+    //         network::MAC((byte*)this->saMAC),
+    //         network::IPV4(*(int32_t*)this->saIPV4),
+    //         static_cast<computer::computerStatus>(*(uint8_t*)this->saStatus)
+    //     };
 }
 
 void manager::computersManager::WriteOnSA(computer pcd)
 {
     //Completa o vetor do hostname com zeros
-    std::fill((char*)this->saHostname, (char*)this->saHostname + 64, 0);
+    // std::fill((char*)this->saHostname, (char*)this->saHostname + 64, 0);
 
     //Copia o hostname para o vetor
-    std::memcpy((char*)this->saHostname, pcd.GetName().c_str(), pcd.GetName().size());
+    // std::memcpy((char*)this->saHostname, pcd.GetName().c_str(), pcd.GetName().size());
     
     //Copia o endereço MAC para o vetor
-    std::memcpy((char*)this->saMAC, pcd.GetMAC().Get(), 6);
+    // std::memcpy((char*)this->saMAC, pcd.GetMAC().Get(), 6);
     
     //Copia o IPV4 para a variavel
-    *(int32_t*)this->saIPV4 = pcd.GetIPV4().Get();
+    // *(int32_t*)this->saIPV4 = pcd.GetIPV4().Get();
 
     //Copia o Status para a variável
-    *(uint8_t*)this->saStatus = static_cast<uint8_t>(pcd.GetStatus());
+    // *(uint8_t*)this->saStatus = static_cast<uint8_t>(pcd.GetStatus());
+
+    //escreve os dados do computador na memória compartilhada
+    *(computer::computerData*)this->saComputerData = pcd.ToComputerData();
 }
 
 void manager::computersManager::__Insert(computer computer)

@@ -16,6 +16,8 @@ computer::computer(computerData data)
     this->macAddr = data.macAddr;
     this->ipv4 = data.ipv4;
     this->status = static_cast<ss::computer::computerStatus>(data.status);
+    this->id = data.id;
+    this->isLeader = data.isLeader;
 }
 
 std::string computer::GetComputerName()
@@ -95,6 +97,8 @@ computer::computerData computer::ToComputerData()
         data.macAddr[i] = this->macAddr.Get()[i];
     data.ipv4 = this->ipv4.Get();
     data.status = static_cast<uint8_t>(this->status);
+    data.id = this->id;
+    data.isLeader = this->isLeader;
 
     return data;
 }

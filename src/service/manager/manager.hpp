@@ -155,6 +155,7 @@ namespace ss
             void* saMAC = nullptr;          //char[6]
             void* saIPV4 = nullptr;         //int
             void* saStatus = nullptr;       //int
+            void* saComputerData = nullptr; //ComputerData
 
             //Controle de mudanças nos dados
             void* saLastUpdate = nullptr;   //uint64

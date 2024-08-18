@@ -29,7 +29,6 @@ namespace ss
             uint8_t status; /**< O estado do computador. */
             int id; /**< O identificador do computador. */
             bool isLeader; /**< Indica se o computador é o líder da rede. */
-            u_int16_t port; /**< A porta de comunicação do computador. */
         };
 
         /**
