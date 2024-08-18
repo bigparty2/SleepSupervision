@@ -70,6 +70,8 @@ void Comunication<ComunicationType::server>::SendToQueue(computer pcDest, Comuni
 
 void Comunication<ComunicationType::server>::AddToQueueResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Adding packet to queue");
+
     SetCommand(Command::CAN_WRITE);
 
     while(GetCommand() != Command::CAN_READ);
@@ -77,6 +79,8 @@ void Comunication<ComunicationType::server>::AddToQueueResponse()
     auto packet = ReadSA();
 
     this->AddToSendQueue(packet);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet added to queue");
 }
 
 ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(ComunicationType toCom, computer fromPC)
@@ -142,6 +146,8 @@ ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(Comunic
 
 void Comunication<ComunicationType::server>::GetFromQueueResponse()
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Getting packet from queue");
+
     SetCommand(Command::CAN_WRITE);
 
     while(GetCommand() != Command::CAN_READ);
@@ -155,10 +161,14 @@ void Comunication<ComunicationType::server>::GetFromQueueResponse()
         writeSA(packet);
 
         SetCommand(Command::GET_FROM_QUEUE);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet found");
     }
     catch(const ComunicationException& e)
     {
         SetCommand(Command::NOT_FOUND);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet not found");
     }
 
     while(GetCommand() != Command::OK);
@@ -289,12 +299,15 @@ void Comunication<ComunicationType::server>::HandleRequest()
         switch(GetCommand())
         {
             case Command::ADD_TO_QUEUE:
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Handling ADD_TO_QUEUE");
                 this->AddToQueueResponse();
                 break;
             case Command::GET_FROM_QUEUE:
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Handling GET_FROM_QUEUE");
                 this->GetFromQueueResponse();
                 break;
             case Command::CLEAR_MESSAGES:
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Handling CLEAR_MESSAGES");
                 this->ClearMessagesResponse();
                 break;
             default:
