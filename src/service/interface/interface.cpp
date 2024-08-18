@@ -484,7 +484,7 @@ void interface::interfaceManager::Draw()
     else if(this->machines.size() > 1)
     {
         //Atualiza informação de posicionamento de elementos
-        this->numOfPages = ceil((float)this->machines.size()/rowsPerPage);
+        this->numOfPages = ceil((float)(this->machines.size()-1)/rowsPerPage);
 
         //Print do titulo da tabela
         this->GotoYX(this->frameTopLinePos - 1, 1);
@@ -652,7 +652,8 @@ computers interface::interfaceManager::PcsOfCurrentPage()
     //Copia para retorno
     for(int index = (this->CurrentPage - 1) * this->rowsPerPage; index < ((this->rowsPerPage * this->CurrentPage) >= machines.size() ? machines.size() : this->rowsPerPage * this->CurrentPage) ; index++)
     {
-        toReturn.push_back(machines.at(index));
+        if(!machines.at(index).IsLeader())
+            toReturn.push_back(machines.at(index));
     }
 
     this->currentRows = toReturn.size();
