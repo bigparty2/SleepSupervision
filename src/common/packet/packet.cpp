@@ -22,9 +22,10 @@ void packet::SetPacket(computer computer, packetMesg message, uint16_t port, byt
 
     this->dataInicialized = true;
     this->packetData.seqNum = seq;
-    std::memcpy(this->packetData.macOrigin, computer.GetMAC().Get(), 6);
-    this->packetData.ipv4Origin = computer.GetIPV4().Get();
-    std::memcpy(this->packetData.nameOrigin, computer.GetName().c_str(), 64);
+    // std::memcpy(this->packetData.macOrigin, computer.GetMAC().Get(), 6);
+    // this->packetData.ipv4Origin = computer.GetIPV4().Get();
+    // std::memcpy(this->packetData.nameOrigin, computer.GetName().c_str(), 64);
+    this->packetData.pcOrigin = computer.ToComputerData();
     this->packetData.portOrigin = port;
     this->packetData.timestamp = this->GetTimestamp();
     this->packetData.message = (byte)message;

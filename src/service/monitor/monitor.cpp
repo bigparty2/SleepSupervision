@@ -61,7 +61,8 @@ void monitor::MonitorSubservice::clientRun()
             {
                 auto returnPacket = network::packet(this->computersManager->thisComputer, network::packet::IMAWAKE, port, packet.GetPacket().seqNum + 1);
 
-                socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().ipv4Origin);
+                // socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().ipv4Origin);
+                socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().pcOrigin.ipv4);
 
                 this->hostFailCount = 0;
             

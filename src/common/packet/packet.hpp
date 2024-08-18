@@ -24,15 +24,27 @@ namespace ss
              * 
              * A estrutura _packet contém os campos que compõem um pacote de rede, como número de sequência, endereço MAC de origem, endereço IPv4 de origem, etc.
              */
+            
+            
+            // struct _packet
+            // {
+            //     byte seqNum;
+            //     byte macOrigin[6];
+            //     int32_t ipv4Origin;
+            //     byte nameOrigin[64];
+            //     uint16_t portOrigin;
+            //     int64_t timestamp;
+            //     byte message;
+            // };
+
             struct _packet
             {
                 byte seqNum; /**< Número de sequência do pacote. */
-                byte macOrigin[6]; /**< Endereço MAC de origem do pacote. */
-                int32_t ipv4Origin; /**< Endereço IPv4 de origem do pacote. */
-                byte nameOrigin[64]; /**< Nome de origem do pacote. */
+                computer::computerData pcOrigin; /**< Dados do computador de origem do pacote. */
                 uint16_t portOrigin; /**< Porta de origem do pacote. */
                 int64_t timestamp; /**< Timestamp do pacote. */
                 byte message; /**< Mensagem do pacote. */
+                computer::computerData payload; /**< Dados do payload do pacote. */
             };
 
             /**
