@@ -167,6 +167,12 @@ void monitor::MonitorSubservice::serverRun()
 
             for(auto& computerMonitor : this->failedMonitors)
             {
+                if(computerMonitor.Computer.IsLeader())
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Computador líder não será verificado");
+                    continue;
+                }
+
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciada verificação do computador " + computerMonitor.Computer.GetName());
 
                 auto packet = network::packet(this->computersManager->thisComputer, network::packet::ISAWAKE, port, 0);

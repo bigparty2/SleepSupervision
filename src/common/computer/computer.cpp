@@ -112,3 +112,18 @@ void computer::SetID(int id)
 {
     this->id = id;
 }
+
+bool computer::IsLeader() const
+{
+    return this->isLeader;
+}
+
+void computer::SetLeader()
+{
+    this->isLeader = true;
+}
+
+void computer::SetParticipant()
+{
+    this->isLeader = false;
+}

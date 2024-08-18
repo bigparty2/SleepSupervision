@@ -137,6 +137,10 @@ namespace ss
         int GetID() const;
         void SetID(int id);
 
+        bool IsLeader() const;
+        void SetLeader();
+        void SetParticipant();
+
         private: 
 
         std::string name; /**< O nome do computador. */

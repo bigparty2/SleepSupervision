@@ -27,11 +27,15 @@ manager::computersManager::computersManager(bool isHost)
     //atribuição do host caso seja host
     if(this->isHost)
     {
+        this->thisComputer.SetID(this->GetNewID());
+        this->thisComputer.SetLeader();
+        this->_data.push_back(this->thisComputer);
         this->hostComputer = new computer(this->thisComputer);
         *(bool*)this->saIsHostSeted = true; 
     }
     else
     {
+        this->thisComputer.SetParticipant();
         this->hostComputer = nullptr;
         *(bool*)this->saIsHostSeted = false;
     }

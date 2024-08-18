@@ -480,7 +480,8 @@ void interface::interfaceManager::Draw()
         }
     }
     //Verifica se há computadores a ser exibidos
-    else if(this->machines.size())
+    // else if(this->machines.size())
+    else if(this->machines.size() > 1)
     {
         //Atualiza informação de posicionamento de elementos
         this->numOfPages = ceil((float)this->machines.size()/rowsPerPage);
