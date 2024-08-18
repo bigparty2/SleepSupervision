@@ -41,6 +41,8 @@ void Comunication<ComunicationType::server>::Stop()
 
 void Comunication<ComunicationType::server>::SendToQueue(computer pcDest, ComunicationType typeDest, ComunicationPacket::message msg, ComunicationType typeOrigin, computer pcData, uint8_t seqNum)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Sending packet to queue");
+
     this->LockSem();
 
     while(GetCommand() != Command::CAN_ACCEPT_NEW_COMMAND);
@@ -61,7 +63,9 @@ void Comunication<ComunicationType::server>::SendToQueue(computer pcDest, Comuni
 
     SetCommand(Command::CAN_READ);
 
-    this->UnlockSem();    
+    this->UnlockSem();
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet sent to queue");
 }
 
 void Comunication<ComunicationType::server>::AddToQueueResponse()
@@ -77,6 +81,8 @@ void Comunication<ComunicationType::server>::AddToQueueResponse()
 
 ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(ComunicationType toCom, computer fromPC)
 {
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Reading packet from queue");
+
     this->LockSem();
 
     while(GetCommand() != Command::CAN_ACCEPT_NEW_COMMAND);
@@ -106,6 +112,8 @@ ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(Comunic
 
         this->UnlockSem();
 
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet not found");
+
         throw ComunicationException(ComunicationException::Type::NOT_FOUND);
     }
     else if (GetCommand() == Command::GET_FROM_QUEUE)
@@ -116,6 +124,8 @@ ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(Comunic
 
         this->UnlockSem();
 
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet found");
+
         return packet;
     }
     else
@@ -123,6 +133,8 @@ ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(Comunic
         SetCommand(Command::OK);
 
         this->UnlockSem();
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Unknown error");
 
         throw ComunicationException(ComunicationException::Type::UNKNOWN);
     }

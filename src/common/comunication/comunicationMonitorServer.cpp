@@ -47,6 +47,8 @@ bool Comunication<monitorServer>::WaitIsAwakeResponse(computer& toPC, short time
         }
     }
 
+    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Computador " + toPC.GetName() + " não respondeu a mensagem de ISAWAKE!");
+
     return false;
 }
 
