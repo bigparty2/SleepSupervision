@@ -18,13 +18,13 @@ void monitor::MonitorSubservice::Start(bool isServer)
     if (isServer)
     {
         this->UpdateComputersToMonior();
-        // serverRun();
-        serverRun_V2();
+        serverRun();
+        // serverRun_V2();
     }
     else
     {
-        // clientRun();
-        clientRun_V2();
+        clientRun();
+        // clientRun_V2();
     }
 }
 

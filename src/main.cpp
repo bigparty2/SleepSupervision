@@ -73,12 +73,12 @@ int main (int argc, char** argv)
     //gerenciador de participantes compartilhado
     ss::manager::computersManager cm(isManager);
 
-    ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando gerenciador de mensagens (Comunication)");
+    // ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando gerenciador de mensagens (Comunication)");
 
     // Inicializacao do servidor da classe comunication
-    ss::network::Comunication<ss::network::ComunicationType::server>& 
-        comServer = ss::network::Comunication<ss::network::ComunicationType::server>::GetInstance(&cm);
-    comServer.StartAsync();
+    // ss::network::Comunication<ss::network::ComunicationType::server>& 
+    //     comServer = ss::network::Comunication<ss::network::ComunicationType::server>::GetInstance(&cm);
+    // comServer.StartAsync();
 
     //inicia o subserviço de descoberta
     auto pidDiscovery = fork();
@@ -149,7 +149,7 @@ int main (int argc, char** argv)
     kill(pidDiscovery, 9);
     kill(pidMonitor, 9);
 
-    comServer.Stop();
+    // comServer.Stop();
 
     ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Encerrando ...");
 
