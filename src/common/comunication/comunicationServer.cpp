@@ -392,6 +392,12 @@ void Comunication<ComunicationType::server>::HandleSander()
         {
             auto packet = this->GetFromSendQueue();
 
+            //Debug
+            {
+                auto packetMSG = packet.GetPacketMSG();
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Sending packet to " + std::string(packetMSG.destPC.name) + ", ipv4 " + IPV4::ToString(packetMSG.destPC.ipv4) + ", on port " + std::to_string(packetMSG.portDest) + " with message " + std::to_string(packetMSG.msg));
+            }
+
             this->socketSender->Send(packet);
 
             logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Packet sent");
