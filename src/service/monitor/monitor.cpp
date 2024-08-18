@@ -193,13 +193,17 @@ void monitor::MonitorSubservice::serverRun()
                     else
                     {
                         computerMonitor.failCount++;
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao com a mensagem correta. " + std::to_string(computerMonitor.failCount) + " falhas.");
                     }
                 }
                 else if (computerMonitor.Computer.GetStatus() == computer::computerStatus::awake)
                 {
                     computerMonitor.failCount++;
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. " + std::to_string(computerMonitor.failCount) + " falhas.");
+                }
+                else if (computerMonitor.Computer.GetStatus() == computer::computerStatus::sleep)
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__, computerMonitor.Computer.GetName() + " não respondeu a solicitacao. Computador continua dormindo.");
                 }
 
                 if(computerMonitor.Computer.GetStatus() == computer::computerStatus::awake && computerMonitor.failCount > MAX_FAILS)
