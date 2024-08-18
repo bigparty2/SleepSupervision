@@ -263,11 +263,12 @@ Comunication<ComunicationType::server>::Comunication()
     this->socketSender = new network::Socket(IPPROTO_UDP);
     this->socketSender->SetConfig(SO_REUSEPORT, 1);
     this->socketSender->SetConfig(SO_BROADCAST, 1);
+    timeval listenerTimeout = {.tv_sec = timeout };
+    this->socketSender->SetConfig(SO_RCVTIMEO, listenerTimeout);
     uint16_t portSender = static_cast<uint16_t>(COM_SENDER_PORT);
     this->socketSender->Bind(portSender);
 
     this->socketListener = new network::Socket(IPPROTO_UDP);
-    timeval listenerTimeout = {.tv_sec = timeout };
     this->socketListener->SetConfig(SO_RCVTIMEO, listenerTimeout);
     this->socketListener->SetConfig(SO_REUSEPORT, 1);
     uint16_t portListener = static_cast<uint16_t>(COM_LISTENER_PORT);
