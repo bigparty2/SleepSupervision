@@ -7,12 +7,12 @@ packet::packet(_packet packet)
     this->SetPacket(packet);
 }
 
-packet::packet(computer computer, packetMesg message, uint16_t port, byte seq)
+packet::packet(computer computer, packetMesg message, uint16_t port, byte seq, computer::computerData payload)
 {
-    this->SetPacket(computer, message, port, seq);
+    this->SetPacket(computer, message, port, seq, payload);
 }
 
-void packet::SetPacket(computer computer, packetMesg message, uint16_t port, byte seq)
+void packet::SetPacket(computer computer, packetMesg message, uint16_t port, byte seq, computer::computerData payload)
 {
     if(this->dataInicialized)
     {
@@ -29,6 +29,7 @@ void packet::SetPacket(computer computer, packetMesg message, uint16_t port, byt
     this->packetData.portOrigin = port;
     this->packetData.timestamp = this->GetTimestamp();
     this->packetData.message = (byte)message;
+    this->packetData.payload = payload;
 }
 
 void packet::SetPacket(_packet packet)

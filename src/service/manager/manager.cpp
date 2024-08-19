@@ -38,6 +38,8 @@ manager::computersManager::computersManager(bool isHost)
         this->thisComputer.SetParticipant();
         this->hostComputer = nullptr;
         *(bool*)this->saIsHostSeted = false;
+        // this->pcListUpdateThreadListener = std::thread(&computersManager::PCListUpdateListener, this);
+        this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
     }
 
     //inicializacao do controle comunicação entre processos
@@ -74,7 +76,16 @@ uint64_t manager::computersManager::LastUpdate() const
 
 void manager::computersManager::UpdateLastUpdate()
 {
+    //Dipara em brodcast a informação de que a lista foi atualizada
+    // auto socket = network::Socket(IPPROTO_UDP);
+    // socket.SetConfig(SO_BROADCAST, 1);      //Habilita broadcast
+    // network::packet packet(this->thisComputer, network::packet::LISTUPDATE, computersManager::MANAGER_LEADER_PORT, 0);
+    // socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
+
     *(uint64_t*)this->saLastUpdate += 1;
+
+    this->SendPCListUpdate();
+
     //(*(uint64_t*)this->saLastUpdate)++;
 }
 
@@ -821,4 +832,120 @@ int ss::manager::computersManager::GetNewID()
     }
 
     return biggerId + 1;
+}
+
+void ss::manager::computersManager::SendPCListUpdate()
+{
+    while(this->pcListUpdateThread.joinable())
+    {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Aguardando finalização da thread de atualização de lista de computadores");
+        thread::Sleep(1000);    
+    }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando thread de atualização de lista de computadores");
+
+    this->pcListUpdateThread = std::thread([this]() { this->SendPCListUpdateOverNetwork(); });
+}
+
+void ss::manager::computersManager::SendPCListUpdateOverNetwork()
+{
+    sem_wait(this->sem);
+
+    auto socket = network::Socket(IPPROTO_UDP);
+    socket.SetConfig(SO_BROADCAST, 1);      //Habilita broadcast
+    int sequence = 0;
+
+    auto packet = network::packet(this->thisComputer, network::packet::LISTUPDATE, computersManager::MANAGER_LEADER_PORT, sequence++);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Enviando mensagem inicial LISTUPDATE");
+
+    socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
+
+    int i = 0;
+    for(; i < this->_data.size(); i++)
+    {
+        thread::Sleep(100);
+        
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(i + 2) +  ". Enviando dados do computador: " + this->_data.at(i).GetName() + "|" + this->_data.at(i).GetIPV4().ToString());
+
+        packet = network::packet(this->thisComputer, network::packet::PCDATA, computersManager::MANAGER_LEADER_PORT, sequence++, this->_data.at(i).ToComputerData());
+
+        socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
+    }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(i + 2) +  ". Enviando mensagem final ENDLIST");
+
+    packet = network::packet(this->thisComputer, network::packet::ENDLIST, computersManager::MANAGER_LEADER_PORT, sequence++);
+
+    socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
+
+    sem_post(this->sem);
+}
+
+void ss::manager::computersManager::ListenPCListUpdate()
+{
+    auto socket = network::Socket(IPPROTO_UDP);
+    timeval timeout = {.tv_sec = 5 };
+    socket.SetConfig(SO_RCVTIMEO, timeout);
+    auto port = computersManager::PCLIST_UPDATE_PORT;
+    socket.Bind(port);
+
+    while(!this->isHost)
+    {
+        auto packet = socket.receivePacket();
+
+        if(packet.IsDataInicialized() && packet.GetPacket().message == network::packet::LISTUPDATE)
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Recebido mensagem de atualização de lista de computadores");
+
+            computers newPCList;
+
+            bool keepReceiving = true;
+
+            while(keepReceiving)
+            {
+                packet = socket.receivePacket();
+
+                if(!packet.IsDataInicialized())
+                {
+                    logger::GetInstance().Error(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Dados não foram recebidos completamente. ");
+                    keepReceiving = false;
+                    continue;
+                }
+                else
+                {
+                    switch (packet.GetPacket().message)
+                    {
+                    case network::packet::PCDATA:
+                        newPCList.push_back(computer(packet.GetPacket().payload));
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Dados do computador recebidos: " + newPCList.back().GetName() + "|" + newPCList.back().GetIPV4().ToString());
+                        break;
+                    case network::packet::ENDLIST:
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Fim da lista de computadores");
+                        keepReceiving = false;
+                        break;
+                    default:
+                        logger::GetInstance().Error(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Mensagem inesperada recebido: " + std::to_string(packet.GetPacket().message));
+                        break;
+                    }
+                }
+            }
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Aguardando liberação de semaforo");
+
+            sem_wait(this->sem);
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Definindo nova lista de computadores");
+
+            this->_data = newPCList;
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Incrementando contador de atualização");
+
+            this->UpdateLastUpdate();
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Liberando semaforo");
+
+            sem_post(this->sem);
+        }
+    }
 }

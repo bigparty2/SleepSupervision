@@ -58,7 +58,10 @@ namespace ss
                 ERROR = 3, /**< Erro. */
                 ISAWAKE = 4, /**< Está acordado. */
                 IMAWAKE = 5, /**< Estou acordado. */
-                EMPTY
+                LISTUPDATE = 6, /**< Lista de computadores foi atualizada. */
+                PCDATA = 7, /**< Obter lista de computadores. */
+                ENDLIST = 9, /**< Fim da lista de computadores. */
+                EMPTY = 10 /**< Vazio. */
             };
 
             /**
@@ -81,7 +84,7 @@ namespace ss
              * @param port A porta de origem do pacote.
              * @param seq O número de sequência do pacote.
              */
-            packet(computer computer, packetMesg message, uint16_t port, byte seq = 1);
+            packet(computer computer, packetMesg message, uint16_t port, byte seq = 1, computer::computerData payload = computer::computerData());
 
             /**
              * @brief Destrutor da classe packet.
@@ -117,7 +120,7 @@ namespace ss
              * @param port A porta de origem do pacote.
              * @param seq O número de sequência do pacote.
              */
-            void SetPacket(computer computer, packetMesg message, uint16_t port, byte seq = 1);
+            void SetPacket(computer computer, packetMesg message, uint16_t port, byte seq = 1, computer::computerData payload = computer::computerData());
 
             /**
              * @brief Define o pacote.

@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <thread>
 #include "../../common/computer/computer.hpp"
 #include "../../common/MAC/mac.hpp"
 #include "../../common/IPV4/ipv4.hpp"
@@ -81,7 +82,20 @@ namespace ss
             //Retorna a informação se o computador host está definido
             bool IsHostSeted() const;
 
+            const static uint16_t PCLIST_UPDATE_PORT = 49997;
+            const static uint16_t MANAGER_LEADER_PORT = 49996;
+
             private:
+
+            void SendPCListUpdate();
+
+            void SendPCListUpdateOverNetwork();
+
+            void ListenPCListUpdate();
+
+            std::thread pcListUpdateThread;
+
+            std::thread pcListUpdateThreadListener;
 
             /// @brief Variavel para validar se o computador é host
             bool isHost;
