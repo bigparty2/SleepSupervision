@@ -151,6 +151,8 @@ int main (int argc, char** argv)
 
     // comServer.Stop();
 
+    cm.~computersManager();
+
     ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Encerrando ...");
 
     return (0x0);
