@@ -61,7 +61,10 @@ namespace ss
                 LISTUPDATE = 6, /**< Lista de computadores foi atualizada. */
                 PCDATA = 7, /**< Obter lista de computadores. */
                 ENDLIST = 9, /**< Fim da lista de computadores. */
-                EMPTY = 10 /**< Vazio. */
+                EMPTY = 10, /**< Vazio. */
+                ELECTION = 11, /**< Eleição. */
+                ELECTION_OK = 12, /**< Eleição OK. */
+                IM_LEADER = 13, /**< Sou líder. */
             };
 
             /**

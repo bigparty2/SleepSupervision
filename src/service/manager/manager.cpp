@@ -38,9 +38,11 @@ manager::computersManager::computersManager(bool isHost)
         this->thisComputer.SetParticipant();
         this->hostComputer = nullptr;
         *(bool*)this->saIsHostSeted = false;
-        // this->pcListUpdateThreadListener = std::thread(&computersManager::PCListUpdateListener, this);
         this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
     }
+
+    //Thread eleição
+    this->bullyElectionThread = std::thread([this]() { this->ElectionHandle(); });
 
     //inicializacao do controle comunicação entre processos
     *(uint64_t*)this->saIPCControl = WAIT;
@@ -958,4 +960,199 @@ void ss::manager::computersManager::ListenPCListUpdate()
             sem_post(this->sem);
         }
     }
+}
+
+void ss::manager::computersManager::ElectionHandle()
+{
+    auto socket = network::Socket(IPPROTO_UDP);
+    timeval timeout = {.tv_sec = 5 };
+    socket.SetConfig(SO_RCVTIMEO, timeout);
+    auto port = computersManager::BULLY_ELECTION_PORT;
+    socket.Bind(port);
+
+    while(this->ThreadKill)
+    {
+        auto packet = socket.receivePacket();
+
+        if(packet.IsDataInicialized())
+        {
+            if(packet.GetPacket().message == network::packet::ELECTION)
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Recebido mensagem de eleição");
+
+                auto packetRet = network::packet(this->thisComputer, network::packet::ELECTION_OK, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
+
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de OK");
+
+                socket.Send(packetRet, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().pcOrigin.ipv4);
+
+                if(*(bool*)this->IsInElection) //Se já estiver em eleição, não inicia outra
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Já estamos em eleição, não iniciando outra");
+                    continue;
+                }
+                else
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando eleição. Definiando variavel indicando que estamos em eleição");
+
+                    *(bool*)this->IsInElection = true;
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Aguardando liberação do semáforo");
+
+                    // sem_wait(this->sem);
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Iniciando distribuição de mensagens para Ids inferiores ao meu");
+
+                    auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
+
+                    for(auto &pcd : this->_data)
+                    {
+                        if(pcd.GetID() < this->thisComputer.GetID())
+                        {
+                            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+
+                            socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
+                        }
+                    }
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Aguardando recebimento de mensagens de eleição");
+
+                    auto response = socket.receivePacket();
+
+                    if(response.IsDataInicialized())
+                    {
+                        if(response.GetPacket().message == network::packet::ELECTION_OK and response.GetPacket().seqNum == packetElection.GetPacket().seqNum + 1)
+                        {
+                            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Recebido mensagem de OK de eleição.");
+
+                            // *(bool*)this->IsInElection = false;
+
+                            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Finalizando etapa. Aguardar mensagem de novo host");
+
+                            continue;
+                        }
+                    }
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Mensagem de OK de eleição não recebida");
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem para os demais participantes informando que eu sou o lider");
+
+                    auto packetLeader = network::packet(this->thisComputer, network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
+
+                    for(auto &pcd : this->_data)
+                    {
+                        if(pcd.GetID() != this->thisComputer.GetID())
+                        {
+                            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+
+                            socket.Send(packetLeader, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
+                        }
+                    }
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"11. Definindo que eu sou o lider na minha instancia");
+
+                    this->SetMeHasLeader();
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"12. Finalizando eleição");
+
+                    *(bool*)this->IsInElection = false;
+                }
+            }
+            else if(packet.GetPacket().message == network::packet::IM_LEADER)
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Recebido mensagem de um novo lider");
+
+                auto leader = computer(packet.GetPacket().pcOrigin);
+
+                this->SetMeHasParticipant(leader);
+
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Finalizando eleição");
+
+                *(bool*)this->IsInElection = false;
+
+                break;
+            }
+        }
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Dados não foram recebidos");
+        }  
+    }
+}
+
+void ss::manager::computersManager::SetMeHasLeader()
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Definindo variavel de controle de lider como true");
+
+    this->isHost = true;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Verificando que existe computadores na lista (CASO DA PRIMEIRA INICIALIZAÇÃO)");
+
+    if(this->_data.size() == 0)
+    {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Aguardando liberação do semáforo");
+
+        sem_wait(this->sem);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.2. Atribuindo ID para mim");
+
+        this->thisComputer.SetID(this->GetNewID());
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.3. Definindo que eu sou o primeiro computador");
+
+        this->_data.push_back(this->thisComputer);
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.4. Liberando semáforo");
+
+        sem_post(this->sem);
+    }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Definindo instancia do computador lider");
+
+    this->hostComputer = new computer(this->thisComputer);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. definindo demais computadores como participantes");
+
+    for(auto &pcd : this->_data)
+    {
+        if(pcd.GetID() != this->thisComputer.GetID())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Definindo computador como participante: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+
+            pcd.SetParticipant();
+        }
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Me definindo como lider na lista");
+
+            pcd.SetLeader();
+        }
+    }
+
+    this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+
+    thread::Sleep(500);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Atualizando contagem de atualização do Manager");
+
+    this->UpdateLastUpdate();
+}
+
+void ss::manager::computersManager::SetMeHasParticipant(computer leader)
+{
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Definindo variavel de controle de lider como false");
+
+    *(bool*)this->isHost = false;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Definindo novo lider como: " + leader.GetName() + "|" + leader.GetIPV4().ToString());
+
+    this->hostComputer = new computer(leader);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Inicializando thread para escutar atualizações de computadores");
+
+    this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Atualizando contagem de atualização do Manager");
+
+    this->UpdateLastUpdate();
 }

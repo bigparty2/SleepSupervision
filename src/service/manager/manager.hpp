@@ -82,8 +82,11 @@ namespace ss
             //Retorna a informação se o computador host está definido
             bool IsHostSeted() const;
 
+            void FindNewLeader();
+
             const static uint16_t PCLIST_UPDATE_PORT = 49997;
             const static uint16_t MANAGER_LEADER_PORT = 49996;
+            const static uint16_t BULLY_ELECTION_PORT = 49995;
 
             private:
 
@@ -93,9 +96,17 @@ namespace ss
 
             void ListenPCListUpdate();
 
+            void ElectionHandle();
+
+            void SetMeHasLeader();
+
+            void SetMeHasParticipant(computer leader);
+
             std::thread pcListUpdateThread;
 
             std::thread pcListUpdateThreadListener;
+
+            std::thread bullyElectionThread;
 
             bool ThreadKill = false;
 
@@ -172,6 +183,8 @@ namespace ss
             void* saIPV4 = nullptr;         //int
             void* saStatus = nullptr;       //int
             void* saComputerData = nullptr; //ComputerData
+
+            void* IsInElection = nullptr;   //bool
 
             //Controle de mudanças nos dados
             void* saLastUpdate = nullptr;   //uint64

@@ -36,37 +36,37 @@ int main (int argc, char** argv)
     prctl(PR_SET_NAME, "SS");
 
     //verificação da quantidade de argumentos
-    if(argc != 2)
-    {
-        printf("Quantidade de argumentos invalidos!\n");
-        ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Quantidade de argumentos invalidos!");
-        return EXIT_FAILURE;
-    }
+    // if(argc != 2)
+    // {
+    //     printf("Quantidade de argumentos invalidos!\n");
+    //     ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Quantidade de argumentos invalidos!");
+    //     return EXIT_FAILURE;
+    // }
 
     //Modo de inicialização: M ou P
-    bool isManager;
+    bool isManager = false;
 
     //verificação para o argumento passado
-    {
-        std::string argStr(argv[1]);
+    // {
+    //     std::string argStr(argv[1]);
 
-        if(argStr == "P" or argStr == "p")
-        {
-            isManager = false;
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Participante");
-        }
-        else if(argStr == "M" or argStr == "m")
-        {
-            ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Gerenciador");
-            isManager = true;
-        }
-        else
-        {
-            ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Argumento inválido!");
-            printf("Argumento \"%s\" invalido!\n", argStr.c_str());
-            return EXIT_FAILURE;
-        }
-    }
+    //     if(argStr == "P" or argStr == "p")
+    //     {
+    //         isManager = false;
+    //         ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Participante");
+    //     }
+    //     else if(argStr == "M" or argStr == "m")
+    //     {
+    //         ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Modo de inicialização: Gerenciador");
+    //         isManager = true;
+    //     }
+    //     else
+    //     {
+    //         ss::logger::GetInstance().Error(__PRETTY_FUNCTION__, "Argumento inválido!");
+    //         printf("Argumento \"%s\" invalido!\n", argStr.c_str());
+    //         return EXIT_FAILURE;
+    //     }
+    // }
 
     ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Manager");
 
