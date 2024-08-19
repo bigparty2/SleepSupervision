@@ -84,8 +84,11 @@ void manager::computersManager::UpdateLastUpdate()
 
     *(uint64_t*)this->saLastUpdate += 1;
 
-    this->SendPCListUpdate();
-
+    if(isHost)
+    {
+        this->SendPCListUpdate();
+    }
+    
     //(*(uint64_t*)this->saLastUpdate)++;
 }
 
