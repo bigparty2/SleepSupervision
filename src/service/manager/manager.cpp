@@ -842,7 +842,8 @@ void ss::manager::computersManager::SendPCListUpdate()
     while(this->pcListUpdateThread.joinable())
     {
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Aguardando finalização da thread de atualização de lista de computadores");
-        thread::Sleep(1000);    
+        // thread::Sleep(1000);
+        this->pcListUpdateThread.join();
     }
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando thread de atualização de lista de computadores");
