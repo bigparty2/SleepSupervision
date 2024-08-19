@@ -63,6 +63,9 @@ manager::computersManager::computersManager(bool isHost)
 
 manager::computersManager::~computersManager()
 {
+    this->ThreadKill = true;
+    this->pcListUpdateThread.join();
+    this->pcListUpdateThreadListener.join();
     sem_close(sem);
     sem_unlink(SEM_NAME);
     if(this->hostComputer != nullptr)
@@ -853,6 +856,9 @@ void ss::manager::computersManager::SendPCListUpdate()
 
 void ss::manager::computersManager::SendPCListUpdateOverNetwork()
 {
+    if(this->ThreadKill)
+        return;
+
     sem_wait(this->sem);
 
     auto socket = network::Socket(IPPROTO_UDP);
@@ -894,7 +900,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
     auto port = computersManager::PCLIST_UPDATE_PORT;
     socket.Bind(port);
 
-    while(!this->isHost)
+    while(!this->isHost && !this->ThreadKill)
     {
         auto packet = socket.receivePacket();
 

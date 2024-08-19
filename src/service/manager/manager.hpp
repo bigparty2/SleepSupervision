@@ -97,6 +97,8 @@ namespace ss
 
             std::thread pcListUpdateThreadListener;
 
+            bool ThreadKill = false;
+
             /// @brief Variavel para validar se o computador é host
             bool isHost;
           
