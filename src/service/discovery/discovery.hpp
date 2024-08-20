@@ -48,6 +48,8 @@ namespace ss
 
             private:
 
+            bool imLeader;
+
             /**
              * @brief Executa o subserviço de descoberta como cliente.
              */

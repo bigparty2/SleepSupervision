@@ -6,6 +6,8 @@ discovery::DiscoverySubservice::DiscoverySubservice(manager::computersManager &c
 {
     this->computersManager = &computersManager;
 
+    // this->imLeader = this->computersManager->ImHost();
+
     this->TIMEOUT = {.tv_sec = 5 };
 }
 
@@ -15,16 +17,22 @@ discovery::DiscoverySubservice::~DiscoverySubservice()
 
 void discovery::DiscoverySubservice::Start(bool isServer)
 {
-    if (isServer)
+    while(true)
     {
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como servidor");
-        serverRun();
+        this->imLeader = this->computersManager->ImHost(); 
+
+        if (computersManager->ImHost())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como servidor");
+            serverRun();
+        }
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como cliente");
+            clientRun();
+        }
     }
-    else
-    {
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando subserviço de descoberta como cliente");
-        clientRun();
-    }
+    
 }
 
 void discovery::DiscoverySubservice::Stop()
@@ -54,11 +62,17 @@ void discovery::DiscoverySubservice::clientRun()
     //Variavel de controle para descoberta
     bool discovery = false;
 
+    //variavel para controle de tentativas de busca até iniciar uma nova eleição
+    int attempts = 0;
+
     logger::GetInstance().Log(__PRETTY_FUNCTION__ ,"Iniciando busca por um host");
 
     //Loop de descoberta
     while(discovery != true)
     {
+        if(this->imLeader != this->computersManager->ImHost())
+            return;
+
         if(!this->computersManager->IsHostSeted())
         {
             //Envio de pacote de descoberta
@@ -87,12 +101,21 @@ void discovery::DiscoverySubservice::clientRun()
                 
                     //Computador adicionado no sistema
                     // discovery = true;
+
+                    //eleição
                 }
             }
             else
             {
                 //log
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Nenhum host encontrado, tentando novamente ...");
+                attempts++;
+            }
+
+            if(attempts > 5)
+            {
+                this->computersManager->FindNewLeader();
+                return;
             }
         }   
         else
@@ -121,6 +144,9 @@ void discovery::DiscoverySubservice::serverRun()
     //loop de recebimento de pacotes
     while(true)
     {
+        if(this->imLeader != this->computersManager->ImHost())
+            return;
+
         //Recebimento de pacote
         auto packet = socket.receivePacket();
 

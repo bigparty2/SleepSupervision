@@ -84,6 +84,8 @@ namespace ss
 
             void FindNewLeader();
 
+            bool ImHost();
+
             const static uint16_t PCLIST_UPDATE_PORT = 49997;
             const static uint16_t MANAGER_LEADER_PORT = 49996;
             const static uint16_t BULLY_ELECTION_PORT = 49995;
@@ -102,21 +104,25 @@ namespace ss
 
             void SetMeHasParticipant(computer leader);
 
+            void StartNewElectionThreadFunc();
+
             std::thread pcListUpdateThread;
 
             std::thread pcListUpdateThreadListener;
 
             std::thread bullyElectionThread;
 
+            std::thread bullyElectionStartThread;
+
             bool ThreadKill = false;
 
             /// @brief Variavel para validar se o computador é host
-            bool isHost;
+            // bool isHost;
           
             //Dados do computador host
             //Obs.: Como os dados do computador host são adquiridos após a separação dos processos
             //este deve ser atribuido por memoria compartilhada para que o processo que gerencia a
-            //lista de computadores possa definir o host e fornece-lo para os demais processos.
+            //lista de computadores possa definir o host e fornece-lo para os demais processos. 
             computer* hostComputer;
 
             //Responde a uma chamada da função Get() para comunicação entre processos
@@ -185,6 +191,8 @@ namespace ss
             void* saComputerData = nullptr; //ComputerData
 
             void* IsInElection = nullptr;   //bool
+            void* StartNewElection = nullptr;   //bool
+            void* IsHost = nullptr;
 
             //Controle de mudanças nos dados
             void* saLastUpdate = nullptr;   //uint64

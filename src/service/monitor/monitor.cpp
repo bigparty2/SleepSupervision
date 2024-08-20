@@ -15,17 +15,24 @@ monitor::MonitorSubservice::~MonitorSubservice()
 
 void monitor::MonitorSubservice::Start(bool isServer)
 {
-    if (isServer)
+    while(true)
     {
-        this->UpdateComputersToMonior();
-        serverRun();
-        // serverRun_V2();
+        this->imLeader = computersManager->ImHost();
+
+        if (computersManager->ImHost())
+        {
+            this->UpdateComputersToMonior();
+            serverRun();
+            // serverRun_V2();
+        }
+        else
+        {
+            clientRun();
+            // clientRun_V2();
+        }
     }
-    else
-    {
-        clientRun();
-        // clientRun_V2();
-    }
+
+    
 }
 
 void monitor::MonitorSubservice::Stop()
@@ -53,6 +60,9 @@ void monitor::MonitorSubservice::clientRun()
     // Monitoring client loop
     while(true)
     {
+        if(this->imLeader != this->computersManager->ImHost())
+            return;
+
         auto packet = socket.receivePacket();
 
         if(packet.IsDataInicialized())
@@ -88,6 +98,10 @@ void monitor::MonitorSubservice::clientRun()
                     this->computersManager->ClearHost();
 
                     this->hostFailCount = 0;
+
+                    this->computersManager->FindNewLeader();
+
+                    return;
                 }
             }
 
@@ -155,6 +169,9 @@ void monitor::MonitorSubservice::serverRun()
     // Monitoring server loop
     while(true)
     {
+        if(this->imLeader != this->computersManager->ImHost())
+            return;
+
         if(this->lastUpdate != this->computersManager->LastUpdate())
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Pegar lista de computadores atulizada");

@@ -39,6 +39,8 @@ void interface::interfaceManager::terminalSizeManager::UpdateCurrentRes()
 
 interface::interfaceManager::interfaceManager(ss::manager::computersManager &cm, bool manager)
 {
+    this->machinesManager = &cm;
+
     this->Init(cm, manager);
 }
 
@@ -63,7 +65,7 @@ void interface::interfaceManager::Init(ss::manager::computersManager &cm, bool m
     this->isRunning = true;
 
     //Definição do ponteiro para a estrutura com dados dos computadores no sistema
-    this->machinesManager = &cm;
+    // this->machinesManager = &cm;
 
     //Atualiza a data da ultima atualização da tela
     this->lastChange = this->machinesManager->LastUpdate();
@@ -143,6 +145,12 @@ void interface::interfaceManager::InputManager()
 {
     while(this->threadKeepAlive)
     {
+        if(this->IsManager != this->machinesManager->ImHost())
+        {
+                this->tend = std::thread(&interface::interfaceManager::End, this);
+                return;
+        }
+
         //Se tiver algo para ler
         if(KbHit())
         {

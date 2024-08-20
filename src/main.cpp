@@ -121,17 +121,33 @@ int main (int argc, char** argv)
     {
         ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciado subserviço Interface");
 
+        bool imLeader = cm.ImHost();
+
         //Define o nome do processo
         prctl(PR_SET_NAME, "SS_Interface");
 
         std::cout << "Sleep Supervision" << std::endl;
 
-        //Inicializa o serviço
-        ss::interface::interfaceManager interfaceManager(cm, isManager);
+        while(true)
+        {
+            //Inicializa o serviço
+            ss::interface::interfaceManager* interfaceManager = new ss::interface::interfaceManager(cm, cm.ImHost());
 
-        //Aguarda finalização do serviço        
-        interfaceManager.Join();
+            //Aguarda finalização do serviço        
+            interfaceManager->Join();
 
+            if(imLeader == cm.ImHost())
+            {
+                break;
+            }
+            else
+            {
+                imLeader = cm.ImHost();
+                delete interfaceManager;
+            }
+        }
+
+        
         ss::logger::GetInstance().Log(__PRETTY_FUNCTION__, "Finalizando subserviço Interface");
 
         return EXIT_SUCCESS;

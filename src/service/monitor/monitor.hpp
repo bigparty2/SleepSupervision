@@ -47,6 +47,9 @@ namespace ss
             void Stop();
 
             private:
+
+            bool imLeader;
+
             /**
              * @brief Executa o processo do cliente.
              */
