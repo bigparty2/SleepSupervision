@@ -8,7 +8,7 @@ discovery::DiscoverySubservice::DiscoverySubservice(manager::computersManager &c
 
     // this->imLeader = this->computersManager->ImHost();
 
-    this->TIMEOUT = {.tv_sec = 5 };
+    this->TIMEOUT = {.tv_sec = 1 };
 }
 
 discovery::DiscoverySubservice::~DiscoverySubservice()
