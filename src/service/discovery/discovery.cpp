@@ -112,8 +112,9 @@ void discovery::DiscoverySubservice::clientRun()
                 attempts++;
             }
 
-            if(attempts > 5)
+            if(attempts > 3)
             {
+                //Nova eleição de um lider usando o algoritmo do valentão
                 this->computersManager->FindNewLeader();
                 return;
             }

@@ -1113,32 +1113,40 @@ void ss::manager::computersManager::SetMeHasLeader()
 
         this->thisComputer.SetID(this->GetNewID());
 
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.3. Definindo que eu sou o primeiro computador");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.4. Me definindo como lider");
+
+        this->thisComputer.SetLeader();
+
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.5. Definindo que eu sou o primeiro computador");
 
         this->_data.push_back(this->thisComputer);
 
-        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.4. Liberando semáforo");
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.6. Liberando semáforo");
 
         sem_post(this->sem);
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Definindo instancia do computador lider");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo instancia do computador lider");
 
     this->hostComputer = new computer(this->thisComputer);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. definindo demais computadores como participantes");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Definindo variavel SA de controle de lider como true");
+
+    *(bool*)this->saIsHostSeted = new bool(true);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. definindo demais computadores como participantes");
 
     for(auto &pcd : this->_data)
     {
         if(pcd.GetID() != this->thisComputer.GetID())
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Definindo computador como participante: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Definindo computador como participante: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
             pcd.SetParticipant();
         }
         else
         {
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Me definindo como lider na lista");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Me definindo como lider na lista, " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
             pcd.SetLeader();
         }
@@ -1150,7 +1158,7 @@ void ss::manager::computersManager::SetMeHasLeader()
 
     thread::Sleep(500);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Atualizando contagem de atualização do Manager");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Atualizando contagem de atualização do Manager");
 
     this->UpdateLastUpdate();
 }
