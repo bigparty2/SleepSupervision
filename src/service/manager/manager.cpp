@@ -906,7 +906,7 @@ void ss::manager::computersManager::SendPCListUpdateOverNetwork()
 void ss::manager::computersManager::ListenPCListUpdate()
 {
     auto socket = network::Socket(IPPROTO_UDP);
-    timeval timeout = {.tv_sec = 5 };
+    timeval timeout = {.tv_sec = 1 };
     socket.SetConfig(SO_RCVTIMEO, timeout);
     socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
     auto port = computersManager::PCLIST_UPDATE_PORT;
@@ -1159,7 +1159,12 @@ void ss::manager::computersManager::SetMeHasLeader()
         }
     }
 
-    // logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Definindo thread para esc");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Aguardando thread de escuta de atualização de lista de computadores");
+
+    if(this->pcListUpdateThreadListener.joinable())
+    {
+        this->pcListUpdateThreadListener.join();
+    }
 
     // this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
 
