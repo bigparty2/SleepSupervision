@@ -970,6 +970,8 @@ void ss::manager::computersManager::ListenPCListUpdate()
             sem_post(this->sem);
         }
     }
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando thread de atualização de lista de computadores pois " + *(bool*)this->IsHost ? "é host" : "foi solicitado o encerramento");
 }
 
 void ss::manager::computersManager::ElectionHandle()
