@@ -114,6 +114,7 @@ void discovery::DiscoverySubservice::clientRun()
 
             if(attempts > 3)
             {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Nenhum host encontrado após 3 tentativas, iniciando nova eleição com FindNewLeader()");
                 //Nova eleição de um lider usando o algoritmo do valentão
                 this->computersManager->FindNewLeader();
                 return;

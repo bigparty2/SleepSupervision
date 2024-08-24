@@ -971,7 +971,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
         }
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando thread de atualização de lista de computadores pois " + *(bool*)this->IsHost ? "é host" : "foi solicitado o encerramento");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Finalizando thread de atualização de lista de computadores. IsHost:" + std::to_string(*(bool*)this->IsHost) + "|ThreadKill:" + std::to_string(this->ThreadKill));
 }
 
 void ss::manager::computersManager::ElectionHandle()
