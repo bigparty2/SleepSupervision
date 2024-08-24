@@ -21,7 +21,7 @@ void monitor::MonitorSubservice::Start(bool isServer)
 
         if (computersManager->ImHost())
         {
-            this->UpdateComputersToMonior();
+            // this->UpdateComputersToMonior();
             serverRun();
             // serverRun_V2();
         }
