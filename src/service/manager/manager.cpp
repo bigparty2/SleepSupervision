@@ -1132,12 +1132,17 @@ void ss::manager::computersManager::SetMeHasLeader()
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Definindo variavel SA de controle de lider como true");
 
-    *(bool*)this->saIsHostSeted = new bool(true);
+    *(bool*)this->saIsHostSeted = true;
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. definindo demais computadores como participantes");
 
     for(auto &pcd : this->_data)
     {
+        if(pcd.IsLeader())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Lider anterior: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+        }
+
         if(pcd.GetID() != this->thisComputer.GetID())
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Definindo computador como participante: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
@@ -1181,6 +1186,10 @@ void ss::manager::computersManager::SetMeHasParticipant(computer leader)
     }
 
     this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo demais computadores como participantes");
+
+    *(bool*)this->saIsHostSeted = true;
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Atualizando contagem de atualização do Manager");
 
