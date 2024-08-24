@@ -1166,11 +1166,11 @@ void ss::manager::computersManager::SetMeHasLeader()
         this->pcListUpdateThreadListener.join();
     }
 
-    // this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Aguardar para que os participantes troquem de contexto");
 
     thread::Sleep(500);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Atualizando contagem de atualização do Manager");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Atualizando contagem de atualização do Manager");
 
     this->UpdateLastUpdate();
 }
