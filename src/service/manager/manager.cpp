@@ -943,7 +943,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Dados do computador recebidos: " + newPCList.back().GetName() + "|" + newPCList.back().GetIPV4().ToString());
                         break;
                     case network::packet::ENDLIST:
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 2) + ". Fim da lista de computadores");
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 3) + ". Fim da lista de computadores");
                         keepReceiving = false;
                         break;
                     default:
@@ -953,19 +953,19 @@ void ss::manager::computersManager::ListenPCListUpdate()
                 }
             }
 
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Aguardando liberação de semaforo");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 4) + ". Aguardando liberação de semaforo");
 
             sem_wait(this->sem);
 
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Definindo nova lista de computadores");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 5) + ". Definindo nova lista de computadores");
 
             this->_data = newPCList;
 
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Incrementando contador de atualização");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 6) + ". Incrementando contador de atualização");
 
             this->UpdateLastUpdate();
 
-            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 2) + ". Liberando semaforo");
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 7) + ". Liberando semaforo");
 
             sem_post(this->sem);
         }
