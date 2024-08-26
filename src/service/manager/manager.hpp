@@ -91,6 +91,9 @@ namespace ss
             const static uint16_t PCLIST_UPDATE_PORT = 49997;
             const static uint16_t MANAGER_LEADER_PORT = 49996;
             const static uint16_t BULLY_ELECTION_PORT = 49995;
+            const static uint16_t BULLY_ELECTION_LISTEN_PORT = 49994;
+            const static uint16_t BULLY_ELECTION_SENDER_PORT = 49993;
+
 
             private:
 

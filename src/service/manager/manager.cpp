@@ -1023,7 +1023,7 @@ void ss::manager::computersManager::ElectionHandle()
     timeval timeout = {.tv_sec = 2 };
     socket.SetConfig(SO_RCVTIMEO, timeout);
     socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
-    auto port = computersManager::BULLY_ELECTION_PORT;
+    auto port = computersManager::BULLY_ELECTION_LISTEN_PORT;
     socket.Bind(port);
 
     while(!this->ThreadKill)
@@ -1038,7 +1038,7 @@ void ss::manager::computersManager::ElectionHandle()
             {
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Recebido mensagem de eleição");
 
-                auto packetRet = network::packet(this->thisComputer(), network::packet::ELECTION_OK, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
+                auto packetRet = network::packet(this->thisComputer(), network::packet::ELECTION_OK, port, packet.GetPacket().seqNum + 1);
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Aguardar intervalo para enviar mensagem de OK");
 
@@ -1046,7 +1046,7 @@ void ss::manager::computersManager::ElectionHandle()
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de OK");
 
-                socket.Send(packetRet, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().pcOrigin.ipv4);
+                socket.Send(packetRet, packet.GetPacket().portOrigin, packet.GetPacket().pcOrigin.ipv4);
 
                 if(*(bool*)this->IsInElection) //Se já estiver em eleição, não inicia outra
                 {
@@ -1297,7 +1297,7 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Criando pacote para distribuição");
 
-                auto packetElection = network::packet(this->thisComputer(), network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
+                auto packetElection = network::packet(this->thisComputer(), network::packet::ELECTION, port, 0);
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu.");
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Total computadores: " + std::to_string(this->_data.size()) + "| Meu ID: " + std::to_string(this->thisComputer().GetID()));
@@ -1308,7 +1308,7 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
                     {
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString() + "|" + std::to_string(pcd.GetID()));
 
-                        socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
+                        socket.Send(packetElection, computersManager::BULLY_ELECTION_LISTEN_PORT, pcd.GetIPV4().Get());
                     }
                     else if(pcd.GetID() == this->thisComputer().GetID())
                     {
@@ -1350,7 +1350,7 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
                     {
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
-                        socket.Send(packetLeader, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
+                        socket.Send(packetLeader, computersManager::BULLY_ELECTION_LISTEN_PORT, pcd.GetIPV4().Get());
                     }
                 }
 
