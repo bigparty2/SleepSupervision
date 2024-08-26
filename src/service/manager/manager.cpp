@@ -698,7 +698,11 @@ void ss::manager::computersManager::SetHost(computer computer)
 
     while((*(uint8_t*)this->saIPCControl) != CANEND);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9 Fim | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9 Indicando END novamente | saIPCControl: " + this->IPCControlToString());
+
+    *(uint8_t*)this->saIPCControl = END;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::SetHostResponse()
@@ -731,7 +735,11 @@ void ss::manager::computersManager::SetHostResponse()
 
     *(uint8_t*)this->saIPCControl = CANEND;
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Aguardando nova mensagem de end | saIPCControl: " + this->IPCControlToString());
+
+    while((*(uint8_t*)this->saIPCControl) != END);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::ClearHost()
@@ -850,6 +858,9 @@ std::string ss::manager::computersManager::IPCControlToString(int control)
         break;
     case RMHOST:
         return "RMHOST";
+        break;
+    case CANEND:
+        return "CANEND";
         break;
     default:
         return "UNKNOWN";

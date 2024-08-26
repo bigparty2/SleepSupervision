@@ -228,7 +228,7 @@ namespace ss
             static constexpr int YES     = 14;  //Indica que host foi definido
             static constexpr int NO      = 15;  //Indica que host não foi definido
             static constexpr int RMHOST  = 16;  //Remover/Limpar host
-            static constexpr int CANEND  = 17;  //Remover/Limpar host
+            static constexpr int CANEND  = 17;  //pode encerrar
 
             static const uint16_t DISCOVERY_PORT_SERVER = 45001;
             static const uint16_t MANAGER_PORT_CLIENT_INIT = 45105;
