@@ -163,6 +163,8 @@ void monitor::MonitorSubservice::serverRun()
     // Configure the socket
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); // Receive timeout
 
+    socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
+
     // Bind the socket to a monitoring port
     uint16_t port = MONITOR_PORT_SERVER;
     socket.Bind(port);

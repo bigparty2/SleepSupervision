@@ -139,6 +139,8 @@ void discovery::DiscoverySubservice::serverRun()
     //Configuracao do socket
     socket.SetConfig(SO_RCVTIMEO, TIMEOUT); //Timeout de recebimento
 
+    socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
+
     //bind socket na porta do servidor
     auto port = DISCOVERY_PORT_SERVER;
     socket.Bind(port);
