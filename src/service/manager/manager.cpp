@@ -1270,7 +1270,7 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
             if(*(bool*)this->IsInElection)
             {
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Já estamos em eleição, não iniciando outra");
-                continue;
+                // continue;
             }
             else
             {
