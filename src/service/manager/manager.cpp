@@ -935,6 +935,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
     socket.Bind(port);
 
     while(!this->ThreadKill)
+    {
     
         if(*(bool*)this->IsHost == true)
         {
