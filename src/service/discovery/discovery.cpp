@@ -101,7 +101,11 @@ void discovery::DiscoverySubservice::clientRun()
 
                     //Definição do computador host
                     this->computersManager->SetHost(host);
+
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Computador host definido");
                 
+                    attempts = 0;
+
                     //Computador adicionado no sistema
                     // discovery = true;
 
