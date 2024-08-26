@@ -1251,13 +1251,14 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 
                 auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu. Total computadores: " + std::to_string(this->_data.size()));
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu.");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Total computadores: " + std::to_string(this->_data.size()) + "| Meu ID: " + std::to_string(this->thisComputer.GetID()));
 
                 for(auto &pcd : this->_data)
                 {
                     if(pcd.GetID() < this->thisComputer.GetID())
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString() + "|" + std::to_string(pcd.GetID()));
 
                         socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
                     }
@@ -1267,7 +1268,7 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
                     }
                     else
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Não enviar mensagem para computador com Id maior que o meu. " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Não enviar mensagem para computador com Id maior que o meu. " + pcd.GetName() + "|" + pcd.GetIPV4().ToString() + "|" + std::to_string(pcd.GetID()));
                     }
                 }
 
