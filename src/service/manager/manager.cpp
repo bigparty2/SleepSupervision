@@ -1020,7 +1020,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
 void ss::manager::computersManager::ElectionHandle()
 {
     auto socket = network::Socket(IPPROTO_UDP);
-    timeval timeout = {.tv_sec = 3 };
+    timeval timeout = {.tv_sec = 2 };
     socket.SetConfig(SO_RCVTIMEO, timeout);
     socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
     auto port = computersManager::BULLY_ELECTION_PORT;
@@ -1028,6 +1028,8 @@ void ss::manager::computersManager::ElectionHandle()
 
     while(!this->ThreadKill)
     {
+        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Aguardando mensagem de eleição");
+
         auto packet = socket.receivePacket();
 
         if(packet.IsDataInicialized())
