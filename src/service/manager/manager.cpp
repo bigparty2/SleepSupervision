@@ -625,7 +625,7 @@ computer ss::manager::computersManager::GetHost()
         throw std::runtime_error("Host não definido");
     }
 
-    if(hostComputer == nullptr)
+    // if(hostComputer == nullptr)
     {
         // Entrar em contato com o processo manager para obter o host
 
@@ -1260,7 +1260,7 @@ void ss::manager::computersManager::SetMeHasParticipant(computer leader)
 
     // this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo demais computadores como participantes");
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definiando que host está definido");
 
     *(bool*)this->saIsHostSeted = true;
 
