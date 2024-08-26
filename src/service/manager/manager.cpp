@@ -936,7 +936,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
 
     while(!this->ThreadKill)
     {
-        if(*(bool*)this->IsHost)
+        if(*(bool*)this->IsHost == true)
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Sou host, não escutar");
             thread::Sleep(1000);
