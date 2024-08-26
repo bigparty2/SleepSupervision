@@ -678,7 +678,11 @@ void ss::manager::computersManager::SetHost(computer computer)
 
     sem_post(this->sem);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Aguardando indicação do response para poder finalizar | saIPCControl: " + this->IPCControlToString());
+
+    while((*(uint8_t*)this->saIPCControl) != CANEND);
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::SetHostResponse()
@@ -707,7 +711,11 @@ void ss::manager::computersManager::SetHostResponse()
 
     this->UpdateLastUpdate();
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Fim | saIPCControl: " + this->IPCControlToString());
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7 Indicando que SetHost pode finalizar | saIPCControl: " + this->IPCControlToString());
+
+    *(uint8_t*)this->saIPCControl = CANEND;
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8 Fim | saIPCControl: " + this->IPCControlToString());
 }
 
 void ss::manager::computersManager::ClearHost()
@@ -1239,20 +1247,27 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 
                 *(bool*)this->IsInElection = true;
 
-                // logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Aguardando liberação do semáforo");
-
-                // sem_wait(this->sem);
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Criando pacote para distribuição");
 
                 auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
+
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Iniciando distribuição de mensagens para Ids inferiores ao meu");
 
                 for(auto &pcd : this->_data)
                 {
                     if(pcd.GetID() < this->thisComputer.GetID())
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
                         socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
+                    }
+                    else if(pcd.GetID() == this->thisComputer.GetID())
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Ignorando envio de mensagem de eleição para mim mesmo");
+                    }
+                    else
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Não enviar mensagem para computador com Id maior que o meu. " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
                     }
                 }
 

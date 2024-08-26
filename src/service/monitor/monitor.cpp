@@ -99,6 +99,7 @@ void monitor::MonitorSubservice::clientRun()
 
                     this->hostFailCount = 0;
 
+                    logger::GetInstance().Log(__PRETTY_FUNCTION__, "Iniciando nova eleição");
                     this->computersManager->FindNewLeader();
 
                     return;
