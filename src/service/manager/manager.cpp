@@ -935,11 +935,12 @@ void ss::manager::computersManager::ListenPCListUpdate()
     socket.Bind(port);
 
     while(!this->ThreadKill)
-    {
+    
         if(*(bool*)this->IsHost == true)
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Sou host, não escutar");
             thread::Sleep(1000);
+            continue;
         }
 
         auto packet = socket.receivePacket();
@@ -1232,7 +1233,7 @@ void ss::manager::computersManager::SetMeHasLeader()
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Aguardar para que os participantes troquem de contexto");
 
-    thread::Sleep(500);
+    thread::Sleep(1000);
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Atualizando contagem de atualização do Manager");
 
