@@ -71,7 +71,10 @@ void discovery::DiscoverySubservice::clientRun()
     while(discovery != true)
     {
         if(this->imLeader != this->computersManager->ImHost())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Encerrando subserviço de descoberta por divergencia de liderança");
             return;
+        }
 
         if(!this->computersManager->IsHostSeted())
         {
@@ -149,7 +152,10 @@ void discovery::DiscoverySubservice::serverRun()
     while(true)
     {
         if(this->imLeader != this->computersManager->ImHost())
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Encerrando subserviço de descoberta por divergencia de liderança");
             return;
+        }
 
         //Recebimento de pacote
         auto packet = socket.receivePacket();
