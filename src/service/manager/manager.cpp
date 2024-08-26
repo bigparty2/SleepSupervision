@@ -1020,7 +1020,7 @@ void ss::manager::computersManager::ListenPCListUpdate()
 void ss::manager::computersManager::ElectionHandle()
 {
     auto socket = network::Socket(IPPROTO_UDP);
-    timeval timeout = {.tv_sec = 1 };
+    timeval timeout = {.tv_sec = 3 };
     socket.SetConfig(SO_RCVTIMEO, timeout);
     socket.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
     auto port = computersManager::BULLY_ELECTION_PORT;
