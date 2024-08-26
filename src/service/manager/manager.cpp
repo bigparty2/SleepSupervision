@@ -1038,6 +1038,10 @@ void ss::manager::computersManager::ElectionHandle()
 
                 auto packetRet = network::packet(this->thisComputer(), network::packet::ELECTION_OK, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
 
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Aguardar intervalo para enviar mensagem de OK");
+
+                thread::Sleep(250);
+
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de OK");
 
                 socket.Send(packetRet, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().pcOrigin.ipv4);
