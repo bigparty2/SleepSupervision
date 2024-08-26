@@ -57,9 +57,11 @@ manager::computersManager::computersManager(bool isHost)
         // this->thisComputer.SetParticipant();
         // this->hostComputer = nullptr;
         *(bool*)this->saIsHostSeted = false;
-        this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
     }
 
+    //thread para escuta de computadores
+    this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+    
     //Thread eleição
     this->bullyElectionThread = std::thread([this]() { this->ElectionHandle(); });
 
@@ -932,8 +934,14 @@ void ss::manager::computersManager::ListenPCListUpdate()
     auto port = computersManager::PCLIST_UPDATE_PORT;
     socket.Bind(port);
 
-    while(!*(bool*)this->IsHost && !this->ThreadKill)
+    while(!this->ThreadKill)
     {
+        if(*(bool*)this->IsHost)
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Sou host, não escutar");
+            thread::Sleep(1000);
+        }
+
         auto packet = socket.receivePacket();
 
         if(packet.IsDataInicialized() && packet.GetPacket().message == network::packet::LISTUPDATE)
@@ -1215,12 +1223,12 @@ void ss::manager::computersManager::SetMeHasLeader()
         }
     }
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Aguardando thread de escuta de atualização de lista de computadores");
+    // logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Aguardando thread de escuta de atualização de lista de computadores");
 
-    if(this->pcListUpdateThreadListener.joinable())
-    {
-        this->pcListUpdateThreadListener.join();
-    }
+    // if(this->pcListUpdateThreadListener.joinable())
+    // {
+    //     this->pcListUpdateThreadListener.join();
+    // }
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Aguardar para que os participantes troquem de contexto");
 
@@ -1241,14 +1249,14 @@ void ss::manager::computersManager::SetMeHasParticipant(computer leader)
 
     this->hostComputer = new computer(leader);
 
-    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Inicializando thread para escutar atualizações de computadores");
+    // logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Inicializando thread para escutar atualizações de computadores");
 
-    if(this->pcListUpdateThreadListener.joinable())
-    {
-        this->pcListUpdateThreadListener.join();
-    }
+    // if(this->pcListUpdateThreadListener.joinable())
+    // {
+    //     this->pcListUpdateThreadListener.join();
+    // }
 
-    this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
+    // this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo demais computadores como participantes");
 
