@@ -861,8 +861,6 @@ int ss::manager::computersManager::GetNewID()
 
     if(this->_data.size() != 0)
     {
-        auto biggerId = 0;
-
         for(auto &pcd : this->_data)
         {
             if(pcd.GetID() > biggerId)
