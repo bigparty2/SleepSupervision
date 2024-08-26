@@ -1238,40 +1238,40 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
         {
             if(*(bool*)this->IsInElection)
             {
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Já estamos em eleição, não iniciando outra");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Já estamos em eleição, não iniciando outra");
                 continue;
             }
             else
             {
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Iniciando eleição. Definiando variavel indicando que estamos em eleição");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Iniciando eleição. Definiando variavel indicando que estamos em eleição");
 
                 *(bool*)this->IsInElection = true;
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Criando pacote para distribuição");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Criando pacote para distribuição");
 
                 auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Iniciando distribuição de mensagens para Ids inferiores ao meu");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu. Total computadores: " + std::to_string(this->_data.size()));
 
                 for(auto &pcd : this->_data)
                 {
                     if(pcd.GetID() < this->thisComputer.GetID())
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
                         socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
                     }
                     else if(pcd.GetID() == this->thisComputer.GetID())
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Ignorando envio de mensagem de eleição para mim mesmo");
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Ignorando envio de mensagem de eleição para mim mesmo");
                     }
                     else
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4.1. Não enviar mensagem para computador com Id maior que o meu. " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Não enviar mensagem para computador com Id maior que o meu. " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
                     }
                 }
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Aguardando recebimento de mensagens de eleição");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Aguardando recebimento de mensagens de eleição");
 
                 auto response = socket.receivePacket();
 
@@ -1279,19 +1279,19 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
                 {
                     if(response.GetPacket().message == network::packet::ELECTION_OK and response.GetPacket().seqNum == packetElection.GetPacket().seqNum + 1)
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Recebido mensagem de OK de eleição.");
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Recebido mensagem de OK de eleição.");
 
                         // *(bool*)this->IsInElection = false;
 
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Finalizando etapa. Aguardar mensagem de novo host");
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Finalizando etapa. Aguardar mensagem de novo host");
 
                         continue;
                     }
                 }
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Mensagem de OK de eleição não recebida");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7. Mensagem de OK de eleição não recebida");
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem para os demais participantes informando que eu sou o lider");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Enviando mensagem para os demais participantes informando que eu sou o lider");
 
                 auto packetLeader = network::packet(this->thisComputer, network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
 
@@ -1299,17 +1299,17 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
                 {
                     if(pcd.GetID() != this->thisComputer.GetID())
                     {
-                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
                         socket.Send(packetLeader, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
                     }
                 }
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"11. Definindo que eu sou o lider na minha instancia");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10. Definindo que eu sou o lider na minha instancia");
 
                 this->SetMeHasLeader();
 
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"12. Finalizando eleição");
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"11. Finalizando eleição");
 
                 *(bool*)this->IsInElection = false;
                 *(bool*)this->StartNewElection = false;
