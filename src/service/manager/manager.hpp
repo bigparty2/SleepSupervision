@@ -68,7 +68,9 @@ namespace ss
             void __Insert(computer computer);
 
             //Instancia com dados deste computador
-            computer thisComputer;
+            // computer thisComputer;
+            computer thisComputer();
+            void SetThisComputer(computer computer);
 
             //Retorna o computador host
             computer GetHost();
@@ -193,6 +195,8 @@ namespace ss
             void* IsInElection = nullptr;   //bool
             void* StartNewElection = nullptr;   //bool
             void* IsHost = nullptr;
+
+            void* saThisComputer = nullptr; //ComputerData
 
             //Controle de mudanças nos dados
             void* saLastUpdate = nullptr;   //uint64

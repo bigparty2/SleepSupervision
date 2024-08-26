@@ -17,6 +17,7 @@ manager::computersManager::computersManager(bool isHost)
     this->IsInElection = mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->StartNewElection = mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     this->IsHost =  mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    this->saThisComputer = mmap(NULL, sizeof(computer::computerData), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     *(bool*)this->IsInElection = false;
     *(bool*)this->StartNewElection = false;
@@ -28,21 +29,33 @@ manager::computersManager::computersManager(bool isHost)
     *(uint64_t*)this->saLastUpdate = 0;
 
     //captura dos dados do computador local
-    this->thisComputer.GetComputerInfo();
+    // this->thisComputer.GetComputerInfo();
+    computer thisComputer;
+    thisComputer.GetComputerInfo();
+    this->SetThisComputer(thisComputer);
 
     //atribuição do host caso seja host
     if(*(bool*)this->IsHost)
     {
-        this->thisComputer.SetID(this->GetNewID());
-        this->thisComputer.SetLeader();
-        this->_data.push_back(this->thisComputer);
-        this->hostComputer = new computer(this->thisComputer);
+        auto tpc = this->thisComputer();
+        tpc.SetID(this->GetNewID());
+        tpc.SetLeader();
+        this->_data.push_back(tpc);
+        this->hostComputer = new computer(tpc);
+        // this->thisComputer.SetID(this->GetNewID());
+        // this->thisComputer.SetLeader();
+        // this->_data.push_back(this->thisComputer);
+        // this->hostComputer = new computer(this->thisComputer);
         *(bool*)this->saIsHostSeted = true; 
     }
     else
     {
-        this->thisComputer.SetParticipant();
+        auto tpc = this->thisComputer();
+        tpc.SetParticipant();
         this->hostComputer = nullptr;
+
+        // this->thisComputer.SetParticipant();
+        // this->hostComputer = nullptr;
         *(bool*)this->saIsHostSeted = false;
         this->pcListUpdateThreadListener = std::thread([this]() { this->ListenPCListUpdate(); });
     }
@@ -77,6 +90,7 @@ manager::computersManager::~computersManager()
     this->ThreadKill = true;
     this->pcListUpdateThread.join();
     this->pcListUpdateThreadListener.join();
+    
     sem_close(sem);
     sem_unlink(SEM_NAME);
     if(this->hostComputer != nullptr)
@@ -884,7 +898,7 @@ void ss::manager::computersManager::SendPCListUpdateOverNetwork()
     socket.SetConfig(SO_BROADCAST, 1);      //Habilita broadcast
     int sequence = 0;
 
-    auto packet = network::packet(this->thisComputer, network::packet::LISTUPDATE, computersManager::MANAGER_LEADER_PORT, sequence++);
+    auto packet = network::packet(this->thisComputer(), network::packet::LISTUPDATE, computersManager::MANAGER_LEADER_PORT, sequence++);
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Enviando mensagem inicial LISTUPDATE");
 
@@ -897,14 +911,14 @@ void ss::manager::computersManager::SendPCListUpdateOverNetwork()
         
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(i + 2) +  ". Enviando dados do computador: " + this->_data.at(i).GetName() + "|" + this->_data.at(i).GetIPV4().ToString());
 
-        packet = network::packet(this->thisComputer, network::packet::PCDATA, computersManager::MANAGER_LEADER_PORT, sequence++, this->_data.at(i).ToComputerData());
+        packet = network::packet(this->thisComputer(), network::packet::PCDATA, computersManager::MANAGER_LEADER_PORT, sequence++, this->_data.at(i).ToComputerData());
 
         socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
     }
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ , std::to_string(i + 2) +  ". Enviando mensagem final ENDLIST");
 
-    packet = network::packet(this->thisComputer, network::packet::ENDLIST, computersManager::MANAGER_LEADER_PORT, sequence++);
+    packet = network::packet(this->thisComputer(), network::packet::ENDLIST, computersManager::MANAGER_LEADER_PORT, sequence++);
 
     socket.Send(packet, computersManager::PCLIST_UPDATE_PORT, INADDR_BROADCAST);
 
@@ -976,6 +990,20 @@ void ss::manager::computersManager::ListenPCListUpdate()
             logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 7) + ". Liberando semaforo");
 
             sem_post(this->sem);
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__, std::to_string(newPCList.size() + 8) + ". Definindo meus dados");
+
+
+            //Localizar meu computador na lista
+            auto myIndex = manager::computersManager::IndexOf(this->thisComputer().GetIPV4());
+            if(myIndex != manager::computersManager::npos)
+            {
+                this->SetThisComputer(this->_data.at(myIndex));
+            }
+            else
+            {
+                logger::GetInstance().Error(__PRETTY_FUNCTION__ , std::to_string(newPCList.size() + 9) + ". Meu computador não foi encontrado na lista de computadores");
+            }
         }
     }
 
@@ -1001,7 +1029,7 @@ void ss::manager::computersManager::ElectionHandle()
             {
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Recebido mensagem de eleição");
 
-                auto packetRet = network::packet(this->thisComputer, network::packet::ELECTION_OK, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
+                auto packetRet = network::packet(this->thisComputer(), network::packet::ELECTION_OK, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de OK");
 
@@ -1023,11 +1051,11 @@ void ss::manager::computersManager::ElectionHandle()
                     // sem_wait(this->sem);
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Iniciando distribuição de mensagens para Ids inferiores ao meu");
 
-                    auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
+                    auto packetElection = network::packet(this->thisComputer(), network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, packet.GetPacket().seqNum + 1);
 
                     for(auto &pcd : this->_data)
                     {
-                        if(pcd.GetID() < this->thisComputer.GetID())
+                        if(pcd.GetID() < this->thisComputer().GetID())
                         {
                             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"6. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
@@ -1059,11 +1087,11 @@ void ss::manager::computersManager::ElectionHandle()
 
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem para os demais participantes informando que eu sou o lider");
 
-                    auto packetLeader = network::packet(this->thisComputer, network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
+                    auto packetLeader = network::packet(this->thisComputer(), network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
 
                     for(auto &pcd : this->_data)
                     {
-                        if(pcd.GetID() != this->thisComputer.GetID())
+                        if(pcd.GetID() != this->thisComputer().GetID())
                         {
                             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"10. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
@@ -1121,15 +1149,20 @@ void ss::manager::computersManager::SetMeHasLeader()
 
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.2. Atribuindo ID para mim");
 
-        this->thisComputer.SetID(this->GetNewID());
+        auto tpc = this->thisComputer();
+        tpc.SetID(this->GetNewID());
+        // this->thisComputer.SetID(this->GetNewID());
 
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.4. Me definindo como lider");
 
-        this->thisComputer.SetLeader();
+        // this->thisComputer.SetLeader();
+        tpc.SetLeader();
 
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.5. Definindo que eu sou o primeiro computador");
 
-        this->_data.push_back(this->thisComputer);
+        // this->_data.push_back(this->thisComputer);
+        this->_data.push_back(tpc);
+        this->SetThisComputer(tpc);
 
         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.6. Liberando semáforo");
 
@@ -1138,7 +1171,7 @@ void ss::manager::computersManager::SetMeHasLeader()
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Definindo instancia do computador lider");
 
-    this->hostComputer = new computer(this->thisComputer);
+    this->hostComputer = new computer(this->thisComputer());
 
     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Definindo variavel SA de controle de lider como true");
 
@@ -1153,7 +1186,7 @@ void ss::manager::computersManager::SetMeHasLeader()
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Lider anterior: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
         }
 
-        if(pcd.GetID() != this->thisComputer.GetID())
+        if(pcd.GetID() != this->thisComputer().GetID())
         {
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"7.1. Definindo computador como participante: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
@@ -1249,20 +1282,20 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Criando pacote para distribuição");
 
-                auto packetElection = network::packet(this->thisComputer, network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
+                auto packetElection = network::packet(this->thisComputer(), network::packet::ELECTION, computersManager::BULLY_ELECTION_PORT, 0);
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Iniciando distribuição de mensagens para Ids inferiores ao meu.");
-                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Total computadores: " + std::to_string(this->_data.size()) + "| Meu ID: " + std::to_string(this->thisComputer.GetID()));
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Total computadores: " + std::to_string(this->_data.size()) + "| Meu ID: " + std::to_string(this->thisComputer().GetID()));
 
                 for(auto &pcd : this->_data)
                 {
-                    if(pcd.GetID() < this->thisComputer.GetID())
+                    if(pcd.GetID() < this->thisComputer().GetID())
                     {
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Enviando mensagem de eleição para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString() + "|" + std::to_string(pcd.GetID()));
 
                         socket.Send(packetElection, computersManager::BULLY_ELECTION_PORT, pcd.GetIPV4().Get());
                     }
-                    else if(pcd.GetID() == this->thisComputer.GetID())
+                    else if(pcd.GetID() == this->thisComputer().GetID())
                     {
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3.1. Ignorando envio de mensagem de eleição para mim mesmo");
                     }
@@ -1294,11 +1327,11 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"8. Enviando mensagem para os demais participantes informando que eu sou o lider");
 
-                auto packetLeader = network::packet(this->thisComputer, network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
+                auto packetLeader = network::packet(this->thisComputer(), network::packet::IM_LEADER, computersManager::BULLY_ELECTION_PORT, 0);
 
                 for(auto &pcd : this->_data)
                 {
-                    if(pcd.GetID() != this->thisComputer.GetID())
+                    if(pcd.GetID() != this->thisComputer().GetID())
                     {
                         logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"9. Enviando mensagem de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
@@ -1324,4 +1357,14 @@ void ss::manager::computersManager::StartNewElectionThreadFunc()
 bool ss::manager::computersManager::ImHost()
 {
     return *(bool*)this->IsHost;
+}
+
+computer ss::manager::computersManager::thisComputer()
+{
+    return *(computer::computerData*)this->saThisComputer;
+}
+
+void ss::manager::computersManager::SetThisComputer(computer computer)
+{
+    *(computer::computerData*)this->saThisComputer = computer.ToComputerData();
 }

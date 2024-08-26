@@ -175,7 +175,7 @@ void interface::interfaceManager::InputManager()
             case (int)'Q':
             case (int)'q':
                 if(!this->IsManager and this->machinesManager->IsHostSeted())
-                    this->machinesManager->Remove(this->machinesManager->thisComputer);
+                    this->machinesManager->Remove(this->machinesManager->thisComputer());
                 this->tend = std::thread(&interface::interfaceManager::End, this);
                 break;
 
@@ -559,7 +559,7 @@ void interface::interfaceManager::PrintFooter()
 {
     this->GotoYX(res->Get().y, 1);
     this->SetTextBlackBackgroundWrite();
-    std::cout << string::ToCenter("Hostname: " + this->machinesManager->thisComputer.GetName(), res->Get().x);
+    std::cout << string::ToCenter("Hostname: " + this->machinesManager->thisComputer().GetName(), res->Get().x);
     this->GotoYX(res->Get().y, 1);
     std::cout << "Modo: " << (this->IsManager ? "Gerenciador  │" : "Participante │");
     this->GotoYX(res->Get().y, res->Get().x - 21);

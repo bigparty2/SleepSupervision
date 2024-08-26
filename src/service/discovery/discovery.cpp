@@ -57,7 +57,7 @@ void discovery::DiscoverySubservice::clientRun()
     uint16_t sequence = 0;
 
     //Pacote de descoberta / registro no sistema
-    network::packet packet(this->computersManager->thisComputer, network::packet::REGITRY, port, sequence);
+    network::packet packet(this->computersManager->thisComputer(), network::packet::REGITRY, port, sequence);
 
     //Variavel de controle para descoberta
     bool discovery = false;
@@ -174,7 +174,7 @@ void discovery::DiscoverySubservice::serverRun()
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Participante inserido no sistema, enviando mensagem de retorno confirmando o ingresso");
 
                     //Pacote de resposta
-                    network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
+                    network::packet response(this->computersManager->thisComputer(), network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
                     //Envio de pacote de resposta
                     // socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);
@@ -197,7 +197,7 @@ void discovery::DiscoverySubservice::serverRun()
                     this->computersManager->Remove(participant);
 
                     //Pacote de resposta
-                    network::packet response(this->computersManager->thisComputer, network::packet::OK, port, packet.GetPacket().seqNum + 1);
+                    network::packet response(this->computersManager->thisComputer(), network::packet::OK, port, packet.GetPacket().seqNum + 1);
 
                     //Envio de pacote de resposta
                     // socket.Send(response, packet.GetPacket().portOrigin, packet.GetPacket().ipv4Origin);

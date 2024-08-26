@@ -69,7 +69,7 @@ void monitor::MonitorSubservice::clientRun()
         {
             if(packet.GetPacket().message == network::packet::ISAWAKE)
             {
-                auto returnPacket = network::packet(this->computersManager->thisComputer, network::packet::IMAWAKE, port, packet.GetPacket().seqNum + 1);
+                auto returnPacket = network::packet(this->computersManager->thisComputer(), network::packet::IMAWAKE, port, packet.GetPacket().seqNum + 1);
 
                 // socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().ipv4Origin);
                 socket.Send(returnPacket, MONITOR_PORT_SERVER, packet.GetPacket().pcOrigin.ipv4);
@@ -193,7 +193,7 @@ void monitor::MonitorSubservice::serverRun()
 
                 logger::GetInstance().Debug(__PRETTY_FUNCTION__, "Iniciada verificação do computador " + computerMonitor.Computer.GetName());
 
-                auto packet = network::packet(this->computersManager->thisComputer, network::packet::ISAWAKE, port, 0);
+                auto packet = network::packet(this->computersManager->thisComputer(), network::packet::ISAWAKE, port, 0);
 
                 socket.Send(packet, MONITOR_PORT_CLIENT, computerMonitor.Computer.GetIPV4().Get());
 

@@ -51,7 +51,7 @@ void Comunication<ComunicationType::server>::SendToQueue(computer pcDest, Comuni
 
     while(GetCommand() != Command::CAN_WRITE);
 
-    this->writeSA(ComunicationPacket::packetBuilder(cm->thisComputer,
+    this->writeSA(ComunicationPacket::packetBuilder(cm->thisComputer(),
                                                     this->COM_SENDER_PORT,
                                                     typeOrigin,
                                                     msg,
@@ -100,7 +100,7 @@ ComunicationPacket Comunication<ComunicationType::server>::ReadFromQueue(Comunic
                                                     0,
                                                     (ComunicationType)0,
                                                     ComunicationPacket::message::EMPTY,
-                                                    cm->thisComputer,
+                                                    cm->thisComputer(),
                                                     0,
                                                     toCom,
                                                     0,
@@ -207,7 +207,7 @@ void Comunication<ComunicationType::server>::ClearMessagesTo(ComunicationType to
                                                     0,
                                                     (ComunicationType)0,
                                                     ComunicationPacket::message::EMPTY,
-                                                    cm->thisComputer,
+                                                    cm->thisComputer(),
                                                     0,
                                                     toCom,
                                                     0,
