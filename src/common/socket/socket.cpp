@@ -43,6 +43,12 @@ void network::Socket::Send(const char* data, size_t dataSize, uint16_t port, uin
 
     if(bytesSend == SOCKET_ERROR)
     {
+        if(errno == ENETUNREACH)
+        {
+            logger::GetInstance().Error(__PRETTY_FUNCTION__ ,"Falha ao enviar o pacote. Erro: " + std::string(std::strerror(errno)));
+            return;
+        }
+
         //TODO: Implementar verificao de timeout
 
         //TODO: Incluir erro na classe LOG
