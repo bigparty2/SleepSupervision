@@ -1162,7 +1162,7 @@ void ss::manager::computersManager::ElectionHandle()
                 *(bool*)this->IsInElection = false;
                 *(bool*)this->StartNewElection = false;
 
-                break;
+                // break;
             }
         }
         else
@@ -1441,8 +1441,12 @@ void ss::manager::computersManager::LeaderVerifyThreadFunc()
                     logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de verificação de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
 
                     socketSender.Send(packet, computersManager::LEADER_VERIFY_LISTEN_PORT, pcd.GetIPV4().Get());
+
+                    //aqui dentro para verificar todos os participantes
                 }
             }
+
+            //Aguardar apenas um
 
             logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando respostas");
 
