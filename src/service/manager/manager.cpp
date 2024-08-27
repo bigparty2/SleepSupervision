@@ -68,6 +68,9 @@ manager::computersManager::computersManager(bool isHost)
     //thread para controle de nova eleição
     this->bullyElectionStartThread = std::thread([this]() { this->StartNewElectionThreadFunc(); });
 
+    //thread para verificação de liderança
+    this->leaderVerifyThread = std::thread([this]() { this->LeaderVerifyThreadFunc(); });
+
     //inicializacao do controle comunicação entre processos
     *(uint64_t*)this->saIPCControl = WAIT;
 
@@ -1403,4 +1406,118 @@ computer ss::manager::computersManager::thisComputer()
 void ss::manager::computersManager::SetThisComputer(computer computer)
 {
     *(computer::computerData*)this->saThisComputer = computer.ToComputerData();
+}
+
+void ss::manager::computersManager::LeaderVerifyThreadFunc()
+{
+    auto socketListen = network::Socket(IPPROTO_UDP);
+    timeval timeout = {.tv_sec = 2 };
+    socketListen.SetConfig(SO_RCVTIMEO, timeout);
+    socketListen.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
+    auto portListen = computersManager::LEADER_VERIFY_LISTEN_PORT;
+    socketListen.Bind(portListen);
+
+    auto socketSender = network::Socket(IPPROTO_UDP);
+    socketSender.SetConfig(SO_RCVTIMEO, timeout);
+    socketSender.SetConfig(SO_REUSEPORT, 1);      // Enable port reuse
+    auto portSender = computersManager::LEADER_VERIFY_SENDER_PORT;
+    socketSender.Bind(portSender);   
+
+    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"Iniciando thread de verificação de liderança");
+
+    while(!this->ThreadKill)
+    {
+        //Caso onde sou lider
+        if(*(bool*)this->IsHost == true)
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Sou lider, perguntar se sou lider aos particpantes");
+
+            auto packet = network::packet(this->thisComputer(), network::packet::WHO_IS_LEADER, computersManager::LEADER_VERIFY_SENDER_PORT, 0);
+
+            for(auto &pcd : this->_data)
+            {
+                if(pcd.GetID() != this->thisComputer().GetID())
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Enviando mensagem de verificação de lider para: " + pcd.GetName() + "|" + pcd.GetIPV4().ToString());
+
+                    socketSender.Send(packet, computersManager::LEADER_VERIFY_LISTEN_PORT, pcd.GetIPV4().Get());
+                }
+            }
+
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Aguardando respostas");
+
+            auto response = socketSender.receivePacket();
+
+            if(response.IsDataInicialized())
+            {
+                if(response.GetPacket().message == network::packet::LEADER_DATA)
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Recebido mensagem com informações do lider");
+
+                    auto leader = computer(response.GetPacket().payload);
+
+                    if(leader.GetIPV4().Get() == this->thisComputer().GetIPV4().Get())
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Sou lider, não fazer nada");
+                    }
+                    else
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"5. Não sou lider, iniciar eleição");
+
+                        this->FindNewLeader();
+                    }
+                }
+                else
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Mensagem inesperada recebida: " + std::to_string(response.GetPacket().message));
+                }
+            }
+            else
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Dados não foram recebidos");
+            }
+
+            thread::Sleep(1000);
+        }
+        //Caso onde não sou lider
+        else
+        {
+            logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"1. Não sou lider, aguardar mensagem de verificação de lider");
+
+            auto packet = socketListen.receivePacket();
+
+            if(packet.IsDataInicialized())
+            {
+                if(packet.GetPacket().message == network::packet::WHO_IS_LEADER)
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Recebido mensagem de verificação de lider");
+
+                    if(this->hostComputer == nullptr)
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Não tenho informações do lider, não responder");
+                    }
+                    else
+                    {
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"3. Criando pacote com informações do lider");
+                    
+                        auto packetRet = network::packet(this->thisComputer(), network::packet::LEADER_DATA, computersManager::LEADER_VERIFY_LISTEN_PORT, 0, this->hostComputer->ToComputerData());
+                    
+                        logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"4. Enviando mensagem com informações do lider");
+                    
+                        socketListen.Send(packetRet, packet.GetPacket().portOrigin, packet.GetPacket().pcOrigin.ipv4);
+                    }
+                }
+                else
+                {
+                    logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Mensagem inesperada recebida: " + std::to_string(packet.GetPacket().message));
+                }
+            }
+            else
+            {
+                logger::GetInstance().Debug(__PRETTY_FUNCTION__ ,"2. Dados não foram recebidos");
+            }
+        }
+
+        thread::Sleep(1000);
+    }
 }

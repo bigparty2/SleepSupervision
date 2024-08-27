@@ -94,6 +94,9 @@ namespace ss
             const static uint16_t BULLY_ELECTION_LISTEN_PORT = 49994;
             const static uint16_t BULLY_ELECTION_SENDER_PORT = 49993;
 
+            const static uint16_t LEADER_VERIFY_LISTEN_PORT = 49992;
+            const static uint16_t LEADER_VERIFY_SENDER_PORT = 49991;
+
 
             private:
 
@@ -111,6 +114,8 @@ namespace ss
 
             void StartNewElectionThreadFunc();
 
+            void LeaderVerifyThreadFunc();
+
             std::thread pcListUpdateThread;
 
             std::thread pcListUpdateThreadListener;
@@ -118,6 +123,8 @@ namespace ss
             std::thread bullyElectionThread;
 
             std::thread bullyElectionStartThread;
+
+            std::thread leaderVerifyThread;
 
             bool ThreadKill = false;
 

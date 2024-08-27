@@ -65,6 +65,8 @@ namespace ss
                 ELECTION = 11, /**< Eleição. */
                 ELECTION_OK = 12, /**< Eleição OK. */
                 IM_LEADER = 13, /**< Sou líder. */
+                WHO_IS_LEADER = 14, /**< Quem é o líder. */
+                LEADER_DATA = 15, /**< Dados do líder. */
             };
 
             /**
